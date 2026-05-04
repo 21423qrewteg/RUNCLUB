@@ -1,5 +1,21 @@
+import math
 import streamlit as st
 import streamlit.components.v1 as components
+
+# ---------------------------------------------------------
+# Дополнительные библиотеки для интерактивной карты
+# ---------------------------------------------------------
+# Если их нет, установите:
+# pip install folium streamlit-folium
+
+try:
+    import folium
+    from folium.plugins import Draw
+    from streamlit_folium import st_folium
+    MAP_LIBRARIES_INSTALLED = True
+except ImportError:
+    MAP_LIBRARIES_INSTALLED = False
+
 
 # ---------------------------------------------------------
 # Настройка страницы
@@ -9,6 +25,7 @@ st.set_page_config(
     page_icon="🏃",
     layout="wide"
 )
+
 
 # ---------------------------------------------------------
 # Стили приложения
@@ -87,7 +104,6 @@ st.markdown("""
 # Демонстрационные данные
 # ---------------------------------------------------------
 
-# Лента завершённых тренировок
 feed_activities = [
     {
         "user": "Даня",
@@ -130,24 +146,9 @@ feed_activities = [
         "comments": 4,
         "status": "Завершено",
         "map_url": "https://yandex.ru/map-widget/v1/?ll=92.893247%2C56.015283&z=13"
-    },
-    {
-        "user": "Игорь",
-        "avatar": "⌚",
-        "date": "2 дня назад",
-        "title": "Длинный маршрут по Красноярску",
-        "description": "Пробежал новый маршрут через несколько районов города и сохранил его в события.",
-        "distance": "8.5 км",
-        "pace": "6:05 мин/км",
-        "time": "52 мин",
-        "likes": 15,
-        "comments": 2,
-        "status": "Завершено",
-        "map_url": "https://yandex.ru/map-widget/v1/?ll=92.934280%2C56.046548&z=12"
     }
 ]
 
-# Доступные пробежки
 runs = [
     {
         "place": "Парк Победы",
@@ -183,7 +184,6 @@ runs = [
     }
 ]
 
-# Переписки
 chats = {
     "Аня": [
         "Привет! Побежим сегодня вечером?",
@@ -199,14 +199,12 @@ chats = {
     ]
 }
 
-# Маршруты пользователя
 my_routes = [
     "Набережная Енисея — Центральный парк, 5 км",
     "Школа — Стадион, 3 км",
     "Лесная тропа, 7 км"
 ]
 
-# События пользователя
 my_events = [
     {
         "name": "Вечерняя пробежка в парке",
@@ -239,10 +237,7 @@ def get_status_class(status):
 
 
 def show_yandex_map(map_url, height=300):
-    """
-    Показывает интерактивную карту Яндекса.
-    Карту можно двигать, увеличивать и уменьшать прямо в приложении.
-    """
+    """Показывает интерактивную карту Яндекса."""
     components.html(
         f"""
         <iframe
@@ -259,12 +254,8 @@ def show_yandex_map(map_url, height=300):
 
 
 def show_activity_card(activity, index):
-    """
-    Показывает карточку тренировки в ленте.
-    Сделано через обычные элементы Streamlit, чтобы HTML-код не выводился текстом.
-    """
+    """Показывает карточку тренировки в ленте."""
     with st.container(border=True):
-        # Верхняя часть карточки: аватар, имя, дата
         col_avatar, col_info = st.columns([1, 8])
 
         with col_avatar:
@@ -274,14 +265,11 @@ def show_activity_card(activity, index):
             st.markdown(f"### {activity['user']}")
             st.caption(activity["date"])
 
-        # Название и описание тренировки
         st.markdown(f"## {activity['title']}")
         st.write(activity["description"])
 
-        # Карта Яндекса
         show_yandex_map(activity["map_url"], height=280)
 
-        # Статистика тренировки
         stat1, stat2, stat3, stat4 = st.columns(4)
 
         with stat1:
@@ -300,8 +288,8 @@ def show_activity_card(activity, index):
                 unsafe_allow_html=True
             )
 
-        # Лайки и комментарии
         st.markdown("---")
+
         react1, react2, react3 = st.columns([1, 1, 4])
 
         with react1:
@@ -313,6 +301,137 @@ def show_activity_card(activity, index):
         with react3:
             if st.button("Поставить лайк", key=f"like_{index}"):
                 st.success("Вы поставили лайк!")
+
+
+def haversine_distance(lat1, lon1, lat2, lon2):
+    """
+    Считает расстояние между двумя точками на Земле.
+    Результат возвращается в километрах.
+    """
+    earth_radius = 6371
+
+    lat1 = math.radians(lat1)
+    lon1 = math.radians(lon1)
+    lat2 = math.radians(lat2)
+    lon2 = math.radians(lon2)
+
+    difference_lat = lat2 - lat1
+    difference_lon = lon2 - lon1
+
+    a = (
+        math.sin(difference_lat / 2) ** 2
+        + math.cos(lat1) * math.cos(lat2) * math.sin(difference_lon / 2) ** 2
+    )
+
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return earth_radius * c
+
+
+def calculate_route_length(points):
+    """
+    Считает длину маршрута по списку точек.
+    Каждая точка хранится как [широта, долгота].
+    """
+    if len(points) < 2:
+        return 0
+
+    total_distance = 0
+
+    for index in range(len(points) - 1):
+        lat1, lon1 = points[index]
+        lat2, lon2 = points[index + 1]
+
+        total_distance += haversine_distance(lat1, lon1, lat2, lon2)
+
+    return total_distance
+
+
+def format_minutes(minutes):
+    """Красиво показывает время пробежки."""
+    if minutes <= 0:
+        return "0 мин"
+
+    hours = int(minutes // 60)
+    mins = int(minutes % 60)
+
+    if hours > 0:
+        return f"{hours} ч {mins} мин"
+
+    return f"{mins} мин"
+
+
+def extract_route_points(map_data):
+    """
+    Достаёт точки нарисованного маршрута из карты.
+    Пользователь рисует линию на карте, а программа берёт координаты этой линии.
+    """
+    if not map_data:
+        return []
+
+    drawings = map_data.get("all_drawings")
+
+    if not drawings:
+        return []
+
+    # Берём последний нарисованный объект
+    last_drawing = drawings[-1]
+
+    geometry = last_drawing.get("geometry", {})
+    geometry_type = geometry.get("type")
+    coordinates = geometry.get("coordinates", [])
+
+    # Если нарисована линия, координаты идут в формате [долгота, широта]
+    if geometry_type == "LineString":
+        points = []
+
+        for point in coordinates:
+            lon = point[0]
+            lat = point[1]
+            points.append([lat, lon])
+
+        return points
+
+    return []
+
+
+def create_route_map():
+    """Создаёт карту Красноярска, на которой можно рисовать маршрут."""
+    krasnoyarsk_center = [56.010563, 92.852572]
+
+    route_map = folium.Map(
+        location=krasnoyarsk_center,
+        zoom_start=12,
+        tiles="OpenStreetMap"
+    )
+
+    # Подсказка на карте
+    folium.Marker(
+        krasnoyarsk_center,
+        tooltip="Красноярск",
+        popup="Нарисуйте маршрут линией на карте"
+    ).add_to(route_map)
+
+    # Инструмент рисования маршрута
+    draw = Draw(
+        export=False,
+        draw_options={
+            "polyline": True,
+            "polygon": False,
+            "circle": False,
+            "rectangle": False,
+            "marker": False,
+            "circlemarker": False
+        },
+        edit_options={
+            "edit": True,
+            "remove": True
+        }
+    )
+
+    draw.add_to(route_map)
+
+    return route_map
 
 
 # ---------------------------------------------------------
@@ -370,60 +489,106 @@ if page == "Стартовое окно":
 # ---------------------------------------------------------
 elif page == "Создать маршрут":
     st.markdown('<div class="big-title">Создать маршрут 🗺️</div>', unsafe_allow_html=True)
-    st.write("Выберите параметры пробежки и посмотрите район на интерактивной карте Красноярска.")
-
-    st.markdown("## Карта Красноярска")
-
-    # Интерактивная карта Яндекса города Красноярск
-    show_yandex_map(
-        "https://yandex.ru/map-widget/v1/?ll=92.852572%2C56.010563&z=12",
-        height=430
+    st.write(
+        "Нарисуйте маршрут на карте, выберите темп и дату. "
+        "Приложение само посчитает длину маршрута и примерное время пробежки."
     )
 
-    st.markdown("## Параметры маршрута")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        route_name = st.text_input("Название маршрута", "Пробежка по Красноярску")
-
-        place = st.text_input(
-            "Место пробежки или финиш",
-            "Набережная Енисея"
+    if not MAP_LIBRARIES_INSTALLED:
+        st.error(
+            "Для этой карты нужны библиотеки folium и streamlit-folium. "
+            "Установите их командой: pip install folium streamlit-folium"
         )
 
-        distance = st.selectbox(
-            "Дистанция",
-            ["1 км", "3 км", "5 км", "7 км", "10 км", "15 км"]
+    else:
+        st.markdown("## 1. Карта для рисования маршрута")
+
+        if "drawing_enabled" not in st.session_state:
+            st.session_state.drawing_enabled = False
+
+        if st.button("✏️ Нарисовать маршрут"):
+            st.session_state.drawing_enabled = True
+
+        if st.session_state.drawing_enabled:
+            st.info(
+                "На карте слева сверху нажмите значок линии. "
+                "Затем кликайте по точкам маршрута. "
+                "Чтобы закончить маршрут, нажмите на последнюю точку."
+            )
+        else:
+            st.warning("Нажмите кнопку «Нарисовать маршрут», чтобы начать построение.")
+
+        route_map = create_route_map()
+
+        map_data = st_folium(
+            route_map,
+            width=1200,
+            height=520,
+            returned_objects=["all_drawings"],
+            key="route_map"
         )
 
-    with col2:
-        pace_type = st.selectbox(
-            "Темп",
-            ["Лёгкий", "Средний", "Быстрый"]
+        route_points = extract_route_points(map_data)
+        route_length = calculate_route_length(route_points)
+
+        st.markdown("## 2. Настройки пробежки")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            route_name = st.text_input(
+                "Название маршрута",
+                "Пробежка по Красноярску"
+            )
+
+        with col2:
+            run_date = st.date_input("Дата начала пробежки")
+
+        with col3:
+            pace = st.number_input(
+                "Темп, мин/км",
+                min_value=3.0,
+                max_value=12.0,
+                value=6.0,
+                step=0.1
+            )
+
+        estimated_time = route_length * pace
+
+        st.markdown("## 3. Расчёт маршрута")
+
+        result1, result2, result3 = st.columns(3)
+
+        with result1:
+            st.metric("Длина маршрута", f"{route_length:.2f} км")
+
+        with result2:
+            st.metric("Выбранный темп", f"{pace:.1f} мин/км")
+
+        with result3:
+            st.metric("Примерное время", format_minutes(estimated_time))
+
+        st.caption(
+            "Время считается по формуле: длина маршрута × темп. "
+            "Например, 3 км × 6 мин/км = 18 минут."
         )
 
-        exact_pace = st.text_input(
-            "Точный темп, мин/км",
-            "6:00"
-        )
-
-        run_time = st.time_input("Время пробежки")
-
-    if st.button("Создать маршрут"):
-        st.markdown(
-            f"""
-            <div class="success-box">
-                ✅ Маршрут <b>{route_name}</b> создан!<br>
-                Место: <b>{place}</b><br>
-                Дистанция: <b>{distance}</b><br>
-                Темп: <b>{pace_type}</b><br>
-                Точный темп: <b>{exact_pace} мин/км</b><br>
-                Время пробежки: <b>{run_time}</b>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        if st.button("Создать маршрут"):
+            if route_length == 0:
+                st.warning("Сначала нарисуйте маршрут на карте.")
+            else:
+                st.markdown(
+                    f"""
+                    <div class="success-box">
+                        ✅ Маршрут <b>{route_name}</b> создан!<br>
+                        Дата пробежки: <b>{run_date}</b><br>
+                        Длина маршрута: <b>{route_length:.2f} км</b><br>
+                        Темп: <b>{pace:.1f} мин/км</b><br>
+                        Примерное время: <b>{format_minutes(estimated_time)}</b>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
 # ---------------------------------------------------------
@@ -457,7 +622,6 @@ elif page == "Найти компанию":
 
     st.markdown("## Доступные пробежки")
 
-    # Фильтрация демонстрационных данных
     filtered_runs = []
 
     for run in runs:
@@ -491,7 +655,6 @@ elif page == "Чат":
     st.markdown('<div class="big-title">Чат 💬</div>', unsafe_allow_html=True)
     st.write("Здесь можно общаться с другими бегунами. Это демонстрационная версия чата.")
 
-    # Сохраняем сообщения в памяти приложения во время работы
     if "chat_messages" not in st.session_state:
         st.session_state.chat_messages = chats.copy()
 
@@ -506,6 +669,7 @@ elif page == "Чат":
         )
 
         st.markdown("## Последние сообщения")
+
         for user, messages in st.session_state.chat_messages.items():
             st.markdown(
                 f"""
@@ -580,6 +744,7 @@ elif page == "Профиль":
             st.metric("Средний темп", "6:10 мин/км")
 
     st.markdown("## Мои маршруты")
+
     for route in my_routes:
         st.markdown(
             f"""
@@ -620,6 +785,7 @@ elif page == "Мои пробежки":
 
     with col1:
         st.markdown("## Созданные маршруты")
+
         for route in my_routes:
             st.markdown(
                 f"""
@@ -632,6 +798,7 @@ elif page == "Мои пробежки":
 
     with col2:
         st.markdown("## Запланированные пробежки")
+
         for event in my_events:
             status_class = get_status_class(event["status"])
 
