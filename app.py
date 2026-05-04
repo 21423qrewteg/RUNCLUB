@@ -8,15 +8,6 @@ import streamlit.components.v1 as components
 # Если их нет, установите:
 # pip install folium streamlit-folium
 
-try:
-    import folium
-    from folium.plugins import Draw
-    from streamlit_folium import st_folium
-    MAP_LIBRARIES_INSTALLED = True
-except ImportError:
-    MAP_LIBRARIES_INSTALLED = False
-
-
 # ---------------------------------------------------------
 # Настройка страницы
 # ---------------------------------------------------------
@@ -494,102 +485,329 @@ elif page == "Создать маршрут":
         "Приложение само посчитает длину маршрута и примерное время пробежки."
     )
 
-    if not MAP_LIBRARIES_INSTALLED:
-        st.error(
-            "Для этой карты нужны библиотеки folium и streamlit-folium. "
-            "Установите их командой: pip install folium streamlit-folium"
-        )
+    components.html(
+        """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
 
-    else:
-        st.markdown("## 1. Карта для рисования маршрута")
+            <link
+                rel="stylesheet"
+                href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            />
 
-        if "drawing_enabled" not in st.session_state:
-            st.session_state.drawing_enabled = False
+            <link
+                rel="stylesheet"
+                href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+            />
 
-        if st.button("✏️ Нарисовать маршрут"):
-            st.session_state.drawing_enabled = True
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
-        if st.session_state.drawing_enabled:
-            st.info(
-                "На карте слева сверху нажмите значок линии. "
-                "Затем кликайте по точкам маршрута. "
-                "Чтобы закончить маршрут, нажмите на последнюю точку."
-            )
-        else:
-            st.warning("Нажмите кнопку «Нарисовать маршрут», чтобы начать построение.")
+            <style>
+                body {
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                    background: #f5f7fb;
+                }
 
-        route_map = create_route_map()
+                .app-box {
+                    background: white;
+                    border-radius: 18px;
+                    padding: 18px;
+                    border: 1px solid #e5e7eb;
+                }
 
-        map_data = st_folium(
-            route_map,
-            width=1200,
-            height=520,
-            returned_objects=["all_drawings"],
-            key="route_map"
-        )
+                #map {
+                    height: 520px;
+                    width: 100%;
+                    border-radius: 18px;
+                    border: 1px solid #d1d5db;
+                    margin-bottom: 18px;
+                }
 
-        route_points = extract_route_points(map_data)
-        route_length = calculate_route_length(route_points)
+                .controls {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 14px;
+                    margin-top: 12px;
+                }
 
-        st.markdown("## 2. Настройки пробежки")
+                .control-card {
+                    background: #f9fafb;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 14px;
+                    padding: 14px;
+                }
 
-        col1, col2, col3 = st.columns(3)
+                .control-card label {
+                    font-size: 14px;
+                    color: #4b5563;
+                    display: block;
+                    margin-bottom: 8px;
+                }
 
-        with col1:
-            route_name = st.text_input(
-                "Название маршрута",
-                "Пробежка по Красноярску"
-            )
+                .control-card input {
+                    width: 100%;
+                    padding: 8px;
+                    border-radius: 8px;
+                    border: 1px solid #d1d5db;
+                    font-size: 15px;
+                }
 
-        with col2:
-            run_date = st.date_input("Дата начала пробежки")
+                .metric {
+                    font-size: 26px;
+                    font-weight: 800;
+                    color: #111827;
+                    margin-top: 6px;
+                }
 
-        with col3:
-            pace = st.number_input(
-                "Темп, мин/км",
-                min_value=3.0,
-                max_value=12.0,
-                value=6.0,
-                step=0.1
-            )
+                .hint {
+                    background: #fff7ed;
+                    border: 1px solid #fed7aa;
+                    color: #9a3412;
+                    padding: 12px;
+                    border-radius: 12px;
+                    margin-bottom: 14px;
+                }
 
-        estimated_time = route_length * pace
+                .draw-button {
+                    background: #fc4c02;
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 12px 18px;
+                    font-size: 16px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    margin-bottom: 14px;
+                }
 
-        st.markdown("## 3. Расчёт маршрута")
+                .draw-button:hover {
+                    background: #ea580c;
+                }
 
-        result1, result2, result3 = st.columns(3)
+                .success {
+                    background: #dcfce7;
+                    color: #166534;
+                    padding: 12px;
+                    border-radius: 12px;
+                    border: 1px solid #86efac;
+                    margin-top: 14px;
+                    display: none;
+                }
+            </style>
+        </head>
 
-        with result1:
-            st.metric("Длина маршрута", f"{route_length:.2f} км")
+        <body>
+            <div class="app-box">
 
-        with result2:
-            st.metric("Выбранный темп", f"{pace:.1f} мин/км")
+                <div class="hint">
+                    Нажмите кнопку «Нарисовать маршрут», затем кликайте по карте и ставьте точки маршрута.
+                    Чтобы закончить маршрут, нажмите два раза по последней точке.
+                </div>
 
-        with result3:
-            st.metric("Примерное время", format_minutes(estimated_time))
+                <button class="draw-button" onclick="startDrawing()">✏️ Нарисовать маршрут</button>
 
-        st.caption(
-            "Время считается по формуле: длина маршрута × темп. "
-            "Например, 3 км × 6 мин/км = 18 минут."
-        )
+                <div id="map"></div>
 
-        if st.button("Создать маршрут"):
-            if route_length == 0:
-                st.warning("Сначала нарисуйте маршрут на карте.")
-            else:
-                st.markdown(
-                    f"""
-                    <div class="success-box">
-                        ✅ Маршрут <b>{route_name}</b> создан!<br>
-                        Дата пробежки: <b>{run_date}</b><br>
-                        Длина маршрута: <b>{route_length:.2f} км</b><br>
-                        Темп: <b>{pace:.1f} мин/км</b><br>
-                        Примерное время: <b>{format_minutes(estimated_time)}</b>
+                <div class="controls">
+                    <div class="control-card">
+                        <label>Название маршрута</label>
+                        <input id="routeName" type="text" value="Пробежка по Красноярску">
                     </div>
-                    """,
-                    unsafe_allow_html=True
-                )
 
+                    <div class="control-card">
+                        <label>Дата начала пробежки</label>
+                        <input id="runDate" type="date">
+                    </div>
+
+                    <div class="control-card">
+                        <label>Темп, мин/км</label>
+                        <input id="pace" type="number" value="6.0" min="3" max="12" step="0.1" oninput="updateTime()">
+                    </div>
+
+                    <div class="control-card">
+                        <label>Статус</label>
+                        <div class="metric">Планируется</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <div class="control-card">
+                        <label>Длина маршрута</label>
+                        <div class="metric" id="distance">0.00 км</div>
+                    </div>
+
+                    <div class="control-card">
+                        <label>Выбранный темп</label>
+                        <div class="metric" id="paceText">6.0 мин/км</div>
+                    </div>
+
+                    <div class="control-card">
+                        <label>Примерное время</label>
+                        <div class="metric" id="timeText">0 мин</div>
+                    </div>
+
+                    <div class="control-card">
+                        <label>Действие</label>
+                        <button class="draw-button" onclick="saveRoute()">Создать маршрут</button>
+                    </div>
+                </div>
+
+                <div class="success" id="successBox">
+                    ✅ Маршрут создан!
+                </div>
+            </div>
+
+            <script>
+                // Центр карты — Красноярск
+                var map = L.map('map').setView([56.010563, 92.852572], 12);
+
+                // Карта OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                // Слой, где будут храниться нарисованные маршруты
+                var drawnItems = new L.FeatureGroup();
+                map.addLayer(drawnItems);
+
+                var routeDistance = 0;
+                var currentDrawer = null;
+
+                // Настройки рисования
+                var drawControl = new L.Control.Draw({
+                    draw: {
+                        polygon: false,
+                        rectangle: false,
+                        circle: false,
+                        marker: false,
+                        circlemarker: false,
+                        polyline: {
+                            shapeOptions: {
+                                color: '#fc4c02',
+                                weight: 6
+                            }
+                        }
+                    },
+                    edit: {
+                        featureGroup: drawnItems,
+                        remove: true
+                    }
+                });
+
+                map.addControl(drawControl);
+
+                // Кнопка запуска рисования маршрута
+                function startDrawing() {
+                    currentDrawer = new L.Draw.Polyline(map, {
+                        shapeOptions: {
+                            color: '#fc4c02',
+                            weight: 6
+                        }
+                    });
+
+                    currentDrawer.enable();
+                }
+
+                // Когда пользователь нарисовал маршрут
+                map.on(L.Draw.Event.CREATED, function (event) {
+                    drawnItems.clearLayers();
+
+                    var layer = event.layer;
+                    drawnItems.addLayer(layer);
+
+                    calculateDistance(layer);
+                });
+
+                // Когда пользователь отредактировал маршрут
+                map.on(L.Draw.Event.EDITED, function (event) {
+                    event.layers.eachLayer(function (layer) {
+                        calculateDistance(layer);
+                    });
+                });
+
+                // Когда пользователь удалил маршрут
+                map.on(L.Draw.Event.DELETED, function () {
+                    routeDistance = 0;
+                    updateTime();
+                });
+
+                // Расчёт расстояния по точкам маршрута
+                function calculateDistance(layer) {
+                    var latlngs = layer.getLatLngs();
+                    var distanceMeters = 0;
+
+                    for (var i = 0; i < latlngs.length - 1; i++) {
+                        distanceMeters += latlngs[i].distanceTo(latlngs[i + 1]);
+                    }
+
+                    routeDistance = distanceMeters / 1000;
+                    updateTime();
+                }
+
+                // Форматирование времени
+                function formatTime(minutes) {
+                    if (minutes <= 0) {
+                        return "0 мин";
+                    }
+
+                    var hours = Math.floor(minutes / 60);
+                    var mins = Math.round(minutes % 60);
+
+                    if (hours > 0) {
+                        return hours + " ч " + mins + " мин";
+                    }
+
+                    return mins + " мин";
+                }
+
+                // Обновление длины, темпа и времени
+                function updateTime() {
+                    var pace = parseFloat(document.getElementById("pace").value);
+
+                    if (isNaN(pace)) {
+                        pace = 0;
+                    }
+
+                    var totalMinutes = routeDistance * pace;
+
+                    document.getElementById("distance").innerText = routeDistance.toFixed(2) + " км";
+                    document.getElementById("paceText").innerText = pace.toFixed(1) + " мин/км";
+                    document.getElementById("timeText").innerText = formatTime(totalMinutes);
+                }
+
+                // Имитация сохранения маршрута
+                function saveRoute() {
+                    var name = document.getElementById("routeName").value;
+                    var date = document.getElementById("runDate").value;
+                    var pace = document.getElementById("pace").value;
+                    var time = document.getElementById("timeText").innerText;
+
+                    if (routeDistance <= 0) {
+                        alert("Сначала нарисуйте маршрут на карте.");
+                        return;
+                    }
+
+                    var successBox = document.getElementById("successBox");
+
+                    successBox.style.display = "block";
+                    successBox.innerHTML =
+                        "✅ Маршрут <b>" + name + "</b> создан!<br>" +
+                        "Дата: <b>" + date + "</b><br>" +
+                        "Длина: <b>" + routeDistance.toFixed(2) + " км</b><br>" +
+                        "Темп: <b>" + pace + " мин/км</b><br>" +
+                        "Примерное время: <b>" + time + "</b>";
+                }
+            </script>
+        </body>
+        </html>
+        """,
+        height=900
+    )
 
 # ---------------------------------------------------------
 # 3. Найти компанию
