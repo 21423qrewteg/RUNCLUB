@@ -509,39 +509,45 @@ elif page == "Создать маршрут":
                 .app-box {
                     background: white;
                     border-radius: 18px;
-                    padding: 18px;
+                    padding: 14px;
                     border: 1px solid #e5e7eb;
+                    box-sizing: border-box;
                 }
 
                 .hint {
-                    background: #fff7ed;
-                    border: 1px solid #fed7aa;
-                    color: #9a3412;
-                    padding: 12px;
+                    background: #fef2f2;
+                    border: 1px solid #fecaca;
+                    color: #991b1b;
+                    padding: 10px 12px;
                     border-radius: 12px;
-                    margin-bottom: 14px;
-                    font-size: 15px;
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                    line-height: 1.35;
                 }
 
                 .buttons {
                     display: flex;
                     flex-wrap: wrap;
-                    gap: 10px;
-                    margin-bottom: 14px;
+                    gap: 8px;
+                    margin-bottom: 10px;
                 }
 
                 button {
                     border: none;
-                    border-radius: 12px;
-                    padding: 12px 16px;
-                    font-size: 15px;
+                    border-radius: 10px;
+                    padding: 10px 14px;
+                    font-size: 14px;
                     font-weight: 700;
                     cursor: pointer;
                 }
 
                 .main-button {
-                    background: #fc4c02;
+                    background: #dc2626;
                     color: white;
+                }
+
+                .main-button:hover {
+                    background: #b91c1c;
                 }
 
                 .blue-button {
@@ -564,68 +570,98 @@ elif page == "Создать маршрут":
                     color: white;
                 }
 
+                .red-button:hover {
+                    background: #b91c1c;
+                }
+
                 #map {
-                    height: 520px;
+                    height: 410px;
                     width: 100%;
-                    border-radius: 18px;
+                    border-radius: 16px;
                     border: 1px solid #d1d5db;
-                    margin-bottom: 18px;
+                    margin-bottom: 12px;
                 }
 
                 .controls {
                     display: grid;
                     grid-template-columns: repeat(4, 1fr);
-                    gap: 14px;
-                    margin-top: 12px;
+                    gap: 10px;
+                    margin-top: 10px;
                 }
 
                 .control-card {
                     background: #f9fafb;
                     border: 1px solid #e5e7eb;
-                    border-radius: 14px;
-                    padding: 14px;
+                    border-radius: 12px;
+                    padding: 10px;
+                    min-height: 76px;
+                    box-sizing: border-box;
                 }
 
                 .control-card label {
-                    font-size: 14px;
+                    font-size: 12px;
                     color: #4b5563;
                     display: block;
-                    margin-bottom: 8px;
+                    margin-bottom: 6px;
+                    font-weight: 700;
                 }
 
                 .control-card input {
                     width: 100%;
                     box-sizing: border-box;
-                    padding: 9px;
+                    padding: 8px;
                     border-radius: 8px;
                     border: 1px solid #d1d5db;
-                    font-size: 15px;
+                    font-size: 14px;
                 }
 
                 .metric {
-                    font-size: 26px;
+                    font-size: 22px;
                     font-weight: 800;
                     color: #111827;
-                    margin-top: 6px;
+                    margin-top: 4px;
                 }
 
                 .success {
                     background: #dcfce7;
                     color: #166534;
-                    padding: 12px;
+                    padding: 10px;
                     border-radius: 12px;
                     border: 1px solid #86efac;
-                    margin-top: 14px;
+                    margin-top: 10px;
                     display: none;
+                    font-size: 14px;
                 }
 
                 .status {
-                    background: #eef2ff;
-                    color: #3730a3;
-                    padding: 10px;
+                    background: #fee2e2;
+                    color: #991b1b;
+                    padding: 9px 10px;
                     border-radius: 12px;
-                    margin-bottom: 12px;
-                    font-size: 15px;
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                    font-weight: 700;
+                }
+
+                .save-button {
+                    width: 100%;
+                    margin-top: 2px;
+                    background: #dc2626;
+                    color: white;
+                }
+
+                .save-button:hover {
+                    background: #b91c1c;
+                }
+
+                @media (max-width: 900px) {
+                    .controls {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+
+                    #map {
+                        height: 360px;
+                    }
                 }
             </style>
         </head>
@@ -634,10 +670,10 @@ elif page == "Создать маршрут":
             <div class="app-box">
 
                 <div class="hint">
-                    1. Нажмите «Начать маршрут».<br>
-                    2. Кликайте по карте, чтобы ставить точки маршрута.<br>
-                    3. Нажмите «Поставить финиш», затем кликните по карте в месте финиша.<br>
-                    4. Длина и примерное время будут считаться автоматически.
+                    1. Нажмите «Начать маршрут». 
+                    2. Кликайте по карте, чтобы ставить точки.
+                    3. Нажмите «Поставить финиш», затем кликните по карте.
+                    4. Длина и время считаются автоматически.
                 </div>
 
                 <div class="status" id="statusText">
@@ -648,8 +684,8 @@ elif page == "Создать маршрут":
                     <button class="main-button" onclick="startRoute()">▶️ Начать маршрут</button>
                     <button class="green-button" onclick="enableFinishMode()">🏁 Поставить финиш</button>
                     <button class="blue-button" onclick="finishRoute()">✅ Завершить маршрут</button>
-                    <button class="gray-button" onclick="removeLastPoint()">↩️ Удалить последнюю точку</button>
-                    <button class="red-button" onclick="clearRoute()">🗑️ Очистить маршрут</button>
+                    <button class="gray-button" onclick="removeLastPoint()">↩️ Удалить точку</button>
+                    <button class="red-button" onclick="clearRoute()">🗑️ Очистить</button>
                 </div>
 
                 <div id="map"></div>
@@ -661,7 +697,7 @@ elif page == "Создать маршрут":
                     </div>
 
                     <div class="control-card">
-                        <label>Дата начала пробежки</label>
+                        <label>Дата начала</label>
                         <input id="runDate" type="date">
                     </div>
 
@@ -694,7 +730,7 @@ elif page == "Создать маршрут":
 
                     <div class="control-card">
                         <label>Сохранение</label>
-                        <button class="main-button" onclick="saveRoute()">Создать маршрут</button>
+                        <button class="save-button" onclick="saveRoute()">Создать</button>
                     </div>
                 </div>
 
@@ -704,9 +740,6 @@ elif page == "Создать маршрут":
             </div>
 
             <script>
-                // ---------------------------------------------------------
-                // Создание карты
-                // ---------------------------------------------------------
                 var map = L.map('map').setView([56.010563, 92.852572], 12);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -714,9 +747,6 @@ elif page == "Создать маршрут":
                     attribution: '© OpenStreetMap'
                 }).addTo(map);
 
-                // ---------------------------------------------------------
-                // Переменные маршрута
-                // ---------------------------------------------------------
                 var routePoints = [];
                 var routeMarkers = [];
                 var routeLine = null;
@@ -728,9 +758,6 @@ elif page == "Создать маршрут":
                 var routeFinished = false;
                 var routeDistance = 0;
 
-                // ---------------------------------------------------------
-                // Начать маршрут
-                // ---------------------------------------------------------
                 function startRoute() {
                     clearRoute();
 
@@ -742,9 +769,6 @@ elif page == "Создать маршрут":
                         "Режим: ставьте точки маршрута кликами по карте.";
                 }
 
-                // ---------------------------------------------------------
-                // Включить режим постановки финиша
-                // ---------------------------------------------------------
                 function enableFinishMode() {
                     if (!routeStarted) {
                         alert("Сначала нажмите «Начать маршрут».");
@@ -759,12 +783,9 @@ elif page == "Создать маршрут":
                     finishMode = true;
 
                     document.getElementById("statusText").innerText =
-                        "Режим: кликните по карте, чтобы поставить точку финиша.";
+                        "Режим: кликните по карте, чтобы поставить финиш.";
                 }
 
-                // ---------------------------------------------------------
-                // Завершить маршрут по последней поставленной точке
-                // ---------------------------------------------------------
                 function finishRoute() {
                     if (routePoints.length < 2) {
                         alert("Для маршрута нужно минимум две точки.");
@@ -788,16 +809,13 @@ elif page == "Создать маршрут":
                         "Маршрут завершён. Длина и время рассчитаны.";
                 }
 
-                // ---------------------------------------------------------
-                // Клик по карте
-                // ---------------------------------------------------------
                 map.on('click', function(event) {
                     if (!routeStarted) {
                         return;
                     }
 
                     if (routeFinished) {
-                        alert("Маршрут уже завершён. Нажмите «Очистить маршрут», чтобы построить новый.");
+                        alert("Маршрут уже завершён. Нажмите «Очистить», чтобы построить новый.");
                         return;
                     }
 
@@ -824,8 +842,8 @@ elif page == "Создать маршрут":
                     } else {
                         var marker = L.circleMarker(point, {
                             radius: 6,
-                            color: "#fc4c02",
-                            fillColor: "#fc4c02",
+                            color: "#dc2626",
+                            fillColor: "#dc2626",
                             fillOpacity: 1
                         }).addTo(map);
 
@@ -836,9 +854,6 @@ elif page == "Создать маршрут":
                     updateInfo();
                 });
 
-                // ---------------------------------------------------------
-                // Перерисовка линии маршрута
-                // ---------------------------------------------------------
                 function redrawRoute() {
                     if (routeLine !== null) {
                         map.removeLayer(routeLine);
@@ -846,15 +861,12 @@ elif page == "Создать маршрут":
 
                     if (routePoints.length >= 2) {
                         routeLine = L.polyline(routePoints, {
-                            color: "#fc4c02",
+                            color: "#dc2626",
                             weight: 6
                         }).addTo(map);
                     }
                 }
 
-                // ---------------------------------------------------------
-                // Удалить последнюю точку
-                // ---------------------------------------------------------
                 function removeLastPoint() {
                     if (routePoints.length === 0) {
                         alert("Точек маршрута пока нет.");
@@ -881,9 +893,6 @@ elif page == "Создать маршрут":
                         "Последняя точка удалена. Можно продолжать маршрут.";
                 }
 
-                // ---------------------------------------------------------
-                // Полностью перерисовать маркеры
-                // ---------------------------------------------------------
                 function redrawAllMarkers() {
                     if (startMarker !== null) {
                         map.removeLayer(startMarker);
@@ -911,8 +920,8 @@ elif page == "Создать маршрут":
                         } else {
                             var marker = L.circleMarker(point, {
                                 radius: 6,
-                                color: "#fc4c02",
-                                fillColor: "#fc4c02",
+                                color: "#dc2626",
+                                fillColor: "#dc2626",
                                 fillOpacity: 1
                             }).addTo(map);
 
@@ -921,9 +930,6 @@ elif page == "Создать маршрут":
                     }
                 }
 
-                // ---------------------------------------------------------
-                // Очистить маршрут
-                // ---------------------------------------------------------
                 function clearRoute() {
                     routePoints = [];
 
@@ -959,9 +965,6 @@ elif page == "Создать маршрут":
                         "Режим: маршрут очищен. Нажмите «Начать маршрут».";
                 }
 
-                // ---------------------------------------------------------
-                // Расчёт длины маршрута
-                // ---------------------------------------------------------
                 function calculateDistance() {
                     var distanceMeters = 0;
 
@@ -976,9 +979,6 @@ elif page == "Создать маршрут":
                     return distanceMeters / 1000;
                 }
 
-                // ---------------------------------------------------------
-                // Форматирование времени
-                // ---------------------------------------------------------
                 function formatTime(minutes) {
                     if (minutes <= 0) {
                         return "0 мин";
@@ -994,9 +994,6 @@ elif page == "Создать маршрут":
                     return mins + " мин";
                 }
 
-                // ---------------------------------------------------------
-                // Обновление длины, темпа и времени
-                // ---------------------------------------------------------
                 function updateInfo() {
                     routeDistance = calculateDistance();
 
@@ -1021,9 +1018,6 @@ elif page == "Создать маршрут":
                         routePoints.length;
                 }
 
-                // ---------------------------------------------------------
-                // Сохранить маршрут
-                // ---------------------------------------------------------
                 function saveRoute() {
                     var name = document.getElementById("routeName").value;
                     var date = document.getElementById("runDate").value;
@@ -1056,7 +1050,7 @@ elif page == "Создать маршрут":
         </body>
         </html>
         """,
-        height=930
+        height=820
     )
 
 # ---------------------------------------------------------
