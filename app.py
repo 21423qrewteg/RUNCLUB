@@ -1,12 +1,8 @@
+import json
 import math
 import streamlit as st
 import streamlit.components.v1 as components
 
-# ---------------------------------------------------------
-# Дополнительные библиотеки для интерактивной карты
-# ---------------------------------------------------------
-# Если их нет, установите:
-# pip install folium streamlit-folium
 
 # ---------------------------------------------------------
 # Настройка страницы
@@ -19,7 +15,7 @@ st.set_page_config(
 
 
 # ---------------------------------------------------------
-# Стили приложения
+# Общие стили приложения
 # ---------------------------------------------------------
 st.markdown("""
 <style>
@@ -40,8 +36,8 @@ st.markdown("""
         margin-bottom: 24px;
     }
 
-    .orange-text {
-        color: #fc4c02;
+    .red-text {
+        color: #dc2626;
         font-weight: 800;
     }
 
@@ -62,8 +58,8 @@ st.markdown("""
 
     .badge {
         display: inline-block;
-        background-color: #eef2ff;
-        color: #3730a3;
+        background-color: #fee2e2;
+        color: #991b1b;
         padding: 7px 12px;
         border-radius: 999px;
         margin: 4px;
@@ -79,13 +75,13 @@ st.markdown("""
         border: 1px solid #e5e7eb;
     }
 
-    .success-box {
-        background-color: #dcfce7;
-        color: #166534;
-        padding: 15px;
-        border-radius: 14px;
-        border: 1px solid #86efac;
-        margin-top: 15px;
+    .info-card {
+        background-color: white;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        margin-bottom: 16px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -95,6 +91,7 @@ st.markdown("""
 # Демонстрационные данные
 # ---------------------------------------------------------
 
+# Лента тренировок других участников
 feed_activities = [
     {
         "user": "Даня",
@@ -108,38 +105,78 @@ feed_activities = [
         "likes": 12,
         "comments": 3,
         "status": "Завершено",
-        "map_url": "https://yandex.ru/map-widget/v1/?ll=92.865202%2C56.012441&z=13"
+        "points": [
+            [56.0211, 92.8702],
+            [56.0174, 92.8790],
+            [56.0125, 92.8867],
+            [56.0081, 92.8952],
+            [56.0045, 92.9040]
+        ]
     },
     {
         "user": "Аня",
         "avatar": "🎧",
         "date": "Вчера, 19:10",
         "title": "Вечерний бег в парке",
-        "description": "Пробежала спокойную тренировку после школы. В следующий раз хочу собрать компанию.",
+        "description": "Спокойная тренировка после школы. В следующий раз хочет собрать компанию.",
         "distance": "3.8 км",
         "pace": "6:20 мин/км",
         "time": "24 мин",
         "likes": 18,
         "comments": 5,
         "status": "Завершено",
-        "map_url": "https://yandex.ru/map-widget/v1/?ll=92.852572%2C56.010563&z=12"
+        "points": [
+            [56.0120, 92.8244],
+            [56.0151, 92.8290],
+            [56.0175, 92.8355],
+            [56.0142, 92.8420],
+            [56.0100, 92.8360]
+        ]
     },
     {
         "user": "Маша",
         "avatar": "🏃‍♀️",
         "date": "Вчера, 17:45",
         "title": "Быстрая тренировка на стадионе",
-        "description": "Сделала интервалы и улучшила средний темп. Было сложно, но результат отличный.",
+        "description": "Интервалы и работа над скоростью. Было сложно, но результат отличный.",
         "distance": "4.0 км",
         "pace": "5:10 мин/км",
         "time": "21 мин",
         "likes": 21,
         "comments": 4,
         "status": "Завершено",
-        "map_url": "https://yandex.ru/map-widget/v1/?ll=92.893247%2C56.015283&z=13"
+        "points": [
+            [56.0152, 92.8930],
+            [56.0170, 92.8975],
+            [56.0144, 92.9022],
+            [56.0117, 92.8981],
+            [56.0152, 92.8930]
+        ]
+    },
+    {
+        "user": "Игорь",
+        "avatar": "⌚",
+        "date": "2 дня назад",
+        "title": "Длинный маршрут по Красноярску",
+        "description": "Пробежал новый маршрут через несколько районов города.",
+        "distance": "8.5 км",
+        "pace": "6:05 мин/км",
+        "time": "52 мин",
+        "likes": 15,
+        "comments": 2,
+        "status": "Завершено",
+        "points": [
+            [56.0465, 92.9342],
+            [56.0410, 92.9201],
+            [56.0350, 92.9062],
+            [56.0272, 92.8910],
+            [56.0200, 92.8765],
+            [56.0140, 92.8650]
+        ]
     }
 ]
 
+# Доступные пробежки
 runs = [
     {
         "place": "Парк Победы",
@@ -175,6 +212,7 @@ runs = [
     }
 ]
 
+# Переписки
 chats = {
     "Аня": [
         "Привет! Побежим сегодня вечером?",
@@ -190,12 +228,14 @@ chats = {
     ]
 }
 
+# Маршруты пользователя
 my_routes = [
     "Набережная Енисея — Центральный парк, 5 км",
     "Школа — Стадион, 3 км",
     "Лесная тропа, 7 км"
 ]
 
+# События пользователя
 my_events = [
     {
         "name": "Вечерняя пробежка в парке",
@@ -218,6 +258,16 @@ my_events = [
 # ---------------------------------------------------------
 # Вспомогательные функции
 # ---------------------------------------------------------
+def get_query_value(name, default=""):
+    """Получает значение из адресной строки браузера."""
+    value = st.query_params.get(name, default)
+
+    if isinstance(value, list):
+        return value[0] if len(value) > 0 else default
+
+    return value
+
+
 def get_status_class(status):
     """Возвращает CSS-класс для статуса события."""
     if status == "запланировано":
@@ -227,25 +277,84 @@ def get_status_class(status):
     return "status-cancelled"
 
 
-def show_yandex_map(map_url, height=300):
-    """Показывает интерактивную карту Яндекса."""
+def show_activity_map(points, map_key):
+    """
+    Показывает карту с треком.
+    Карта строится через Leaflet внутри HTML, поэтому дополнительные Python-библиотеки не нужны.
+    """
+    points_json = json.dumps(points)
+
     components.html(
         f"""
-        <iframe
-            src="{map_url}"
-            width="100%"
-            height="{height}"
-            frameborder="0"
-            allowfullscreen="true"
-            style="border-radius: 18px; border: 1px solid #e5e7eb;">
-        </iframe>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+
+            <link
+                rel="stylesheet"
+                href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            />
+
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+            <style>
+                body {{
+                    margin: 0;
+                }}
+
+                #map_{map_key} {{
+                    height: 280px;
+                    width: 100%;
+                    border-radius: 16px;
+                    border: 1px solid #d1d5db;
+                }}
+            </style>
+        </head>
+
+        <body>
+            <div id="map_{map_key}"></div>
+
+            <script>
+                var points = {points_json};
+
+                var map = L.map('map_{map_key}', {{
+                    scrollWheelZoom: false
+                }});
+
+                L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }}).addTo(map);
+
+                if (points.length > 0) {{
+                    var line = L.polyline(points, {{
+                        color: "#dc2626",
+                        weight: 6
+                    }}).addTo(map);
+
+                    L.marker(points[0]).addTo(map).bindPopup("📍 Старт");
+
+                    if (points.length > 1) {{
+                        L.marker(points[points.length - 1]).addTo(map).bindPopup("🏁 Финиш");
+                    }}
+
+                    map.fitBounds(line.getBounds(), {{
+                        padding: [25, 25]
+                    }});
+                }} else {{
+                    map.setView([56.010563, 92.852572], 12);
+                }}
+            </script>
+        </body>
+        </html>
         """,
-        height=height + 20
+        height=300
     )
 
 
-def show_activity_card(activity, index):
-    """Показывает карточку тренировки в ленте."""
+def show_activity_card(activity, index, is_user=False):
+    """Показывает карточку тренировки в стартовой ленте."""
     with st.container(border=True):
         col_avatar, col_info = st.columns([1, 8])
 
@@ -253,13 +362,17 @@ def show_activity_card(activity, index):
             st.markdown(f"## {activity['avatar']}")
 
         with col_info:
-            st.markdown(f"### {activity['user']}")
+            if is_user:
+                st.markdown(f"### {activity['user']} <span class='red-text'>— ваш маршрут</span>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"### {activity['user']}")
+
             st.caption(activity["date"])
 
         st.markdown(f"## {activity['title']}")
         st.write(activity["description"])
 
-        show_yandex_map(activity["map_url"], height=280)
+        show_activity_map(activity["points"], f"activity_{index}")
 
         stat1, stat2, stat3, stat4 = st.columns(4)
 
@@ -284,7 +397,7 @@ def show_activity_card(activity, index):
         react1, react2, react3 = st.columns([1, 1, 4])
 
         with react1:
-            st.write(f"🔥 {activity['likes']} лайков")
+            st.write(f"❤️ {activity['likes']} лайков")
 
         with react2:
             st.write(f"💬 {activity['comments']} комментариев")
@@ -294,153 +407,33 @@ def show_activity_card(activity, index):
                 st.success("Вы поставили лайк!")
 
 
-def haversine_distance(lat1, lon1, lat2, lon2):
-    """
-    Считает расстояние между двумя точками на Земле.
-    Результат возвращается в километрах.
-    """
-    earth_radius = 6371
-
-    lat1 = math.radians(lat1)
-    lon1 = math.radians(lon1)
-    lat2 = math.radians(lat2)
-    lon2 = math.radians(lon2)
-
-    difference_lat = lat2 - lat1
-    difference_lon = lon2 - lon1
-
-    a = (
-        math.sin(difference_lat / 2) ** 2
-        + math.cos(lat1) * math.cos(lat2) * math.sin(difference_lon / 2) ** 2
-    )
-
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-    return earth_radius * c
-
-
-def calculate_route_length(points):
-    """
-    Считает длину маршрута по списку точек.
-    Каждая точка хранится как [широта, долгота].
-    """
-    if len(points) < 2:
-        return 0
-
-    total_distance = 0
-
-    for index in range(len(points) - 1):
-        lat1, lon1 = points[index]
-        lat2, lon2 = points[index + 1]
-
-        total_distance += haversine_distance(lat1, lon1, lat2, lon2)
-
-    return total_distance
-
-
-def format_minutes(minutes):
-    """Красиво показывает время пробежки."""
-    if minutes <= 0:
-        return "0 мин"
-
-    hours = int(minutes // 60)
-    mins = int(minutes % 60)
-
-    if hours > 0:
-        return f"{hours} ч {mins} мин"
-
-    return f"{mins} мин"
-
-
-def extract_route_points(map_data):
-    """
-    Достаёт точки нарисованного маршрута из карты.
-    Пользователь рисует линию на карте, а программа берёт координаты этой линии.
-    """
-    if not map_data:
-        return []
-
-    drawings = map_data.get("all_drawings")
-
-    if not drawings:
-        return []
-
-    # Берём последний нарисованный объект
-    last_drawing = drawings[-1]
-
-    geometry = last_drawing.get("geometry", {})
-    geometry_type = geometry.get("type")
-    coordinates = geometry.get("coordinates", [])
-
-    # Если нарисована линия, координаты идут в формате [долгота, широта]
-    if geometry_type == "LineString":
-        points = []
-
-        for point in coordinates:
-            lon = point[0]
-            lat = point[1]
-            points.append([lat, lon])
-
-        return points
-
-    return []
-
-
-def create_route_map():
-    """Создаёт карту Красноярска, на которой можно рисовать маршрут."""
-    krasnoyarsk_center = [56.010563, 92.852572]
-
-    route_map = folium.Map(
-        location=krasnoyarsk_center,
-        zoom_start=12,
-        tiles="OpenStreetMap"
-    )
-
-    # Подсказка на карте
-    folium.Marker(
-        krasnoyarsk_center,
-        tooltip="Красноярск",
-        popup="Нарисуйте маршрут линией на карте"
-    ).add_to(route_map)
-
-    # Инструмент рисования маршрута
-    draw = Draw(
-        export=False,
-        draw_options={
-            "polyline": True,
-            "polygon": False,
-            "circle": False,
-            "rectangle": False,
-            "marker": False,
-            "circlemarker": False
-        },
-        edit_options={
-            "edit": True,
-            "remove": True
-        }
-    )
-
-    draw.add_to(route_map)
-
-    return route_map
-
-
 # ---------------------------------------------------------
 # Боковое меню
 # ---------------------------------------------------------
+pages = [
+    "Стартовое окно",
+    "Создать маршрут",
+    "Найти компанию",
+    "Чат",
+    "Профиль",
+    "Мои пробежки"
+]
+
+# Если пользователь пришёл после сохранения маршрута, открываем стартовое окно
+page_from_url = get_query_value("page", "Стартовое окно")
+
+if page_from_url in pages:
+    default_page_index = pages.index(page_from_url)
+else:
+    default_page_index = 0
+
 st.sidebar.title("🏃 RunMate")
 st.sidebar.write("Меню приложения")
 
 page = st.sidebar.radio(
     "Выберите раздел:",
-    [
-        "Стартовое окно",
-        "Создать маршрут",
-        "Найти компанию",
-        "Чат",
-        "Профиль",
-        "Мои пробежки"
-    ]
+    pages,
+    index=default_page_index
 )
 
 st.sidebar.markdown("---")
@@ -453,7 +446,7 @@ st.sidebar.info("Школьный проект по информатике: по
 if page == "Стартовое окно":
     st.markdown('<div class="big-title">RunMate 🏃‍♂️</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="subtitle">Лента завершённых тренировок друзей и бегунов рядом с вами.</div>',
+        '<div class="subtitle">Лента завершённых и запланированных тренировок друзей и бегунов рядом с вами.</div>',
         unsafe_allow_html=True
     )
 
@@ -469,6 +462,41 @@ if page == "Стартовое окно":
         st.metric("Новых участников", "6")
 
     st.markdown("## Лента активности")
+
+    # Проверяем, был ли сохранён маршрут из окна «Создать маршрут»
+    saved_route = get_query_value("saved_route", "0")
+
+    if saved_route == "1":
+        title = get_query_value("title", "Мой маршрут")
+        description = get_query_value("description", "Маршрут создан в приложении RunMate.")
+        date = get_query_value("date", "Дата не выбрана")
+        distance = get_query_value("distance", "0.00")
+        pace = get_query_value("pace", "6.0")
+        time = get_query_value("time", "0 мин")
+        points_text = get_query_value("points", "[]")
+
+        try:
+            user_points = json.loads(points_text)
+        except Exception:
+            user_points = []
+
+        user_activity = {
+            "user": "Вы",
+            "avatar": "🙂",
+            "date": date,
+            "title": title,
+            "description": description,
+            "distance": f"{distance} км",
+            "pace": f"{pace} мин/км",
+            "time": time,
+            "likes": 0,
+            "comments": 0,
+            "status": "Запланировано",
+            "points": user_points
+        }
+
+        show_activity_card(user_activity, "user_saved", is_user=True)
+        st.write("")
 
     for index, activity in enumerate(feed_activities):
         show_activity_card(activity, index)
@@ -622,17 +650,6 @@ elif page == "Создать маршрут":
                     margin-top: 4px;
                 }
 
-                .success {
-                    background: #dcfce7;
-                    color: #166534;
-                    padding: 10px;
-                    border-radius: 12px;
-                    border: 1px solid #86efac;
-                    margin-top: 10px;
-                    display: none;
-                    font-size: 14px;
-                }
-
                 .status {
                     background: #fee2e2;
                     color: #991b1b;
@@ -652,6 +669,75 @@ elif page == "Создать маршрут":
 
                 .save-button:hover {
                     background: #b91c1c;
+                }
+
+                .success-overlay {
+                    position: fixed;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    bottom: 0;
+                    background: rgba(17, 24, 39, 0.55);
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                    opacity: 0;
+                    transition: opacity 0.5s ease;
+                }
+
+                .success-overlay.show {
+                    display: flex;
+                    opacity: 1;
+                }
+
+                .success-modal {
+                    background: white;
+                    border-radius: 22px;
+                    padding: 28px;
+                    width: 420px;
+                    max-width: 90%;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+                    transform: translateY(20px);
+                    animation: slideUp 0.5s ease forwards;
+                }
+
+                .success-modal h2 {
+                    margin: 0 0 10px 0;
+                    color: #166534;
+                    font-size: 26px;
+                }
+
+                .success-modal p {
+                    color: #4b5563;
+                    font-size: 15px;
+                    line-height: 1.5;
+                }
+
+                .check {
+                    width: 70px;
+                    height: 70px;
+                    border-radius: 50%;
+                    background: #dcfce7;
+                    color: #16a34a;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 38px;
+                    margin: 0 auto 16px auto;
+                }
+
+                @keyframes slideUp {
+                    from {
+                        transform: translateY(25px);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
                 }
 
                 @media (max-width: 900px) {
@@ -697,6 +783,11 @@ elif page == "Создать маршрут":
                     </div>
 
                     <div class="control-card">
+                        <label>Описание</label>
+                        <input id="routeDescription" type="text" value="Мой новый маршрут для пробежки.">
+                    </div>
+
+                    <div class="control-card">
                         <label>Дата начала</label>
                         <input id="runDate" type="date">
                     </div>
@@ -705,22 +796,17 @@ elif page == "Создать маршрут":
                         <label>Темп, мин/км</label>
                         <input id="pace" type="number" value="6.0" min="3" max="12" step="0.1" oninput="updateInfo()">
                     </div>
-
-                    <div class="control-card">
-                        <label>Количество точек</label>
-                        <div class="metric" id="pointsCount">0</div>
-                    </div>
                 </div>
 
                 <div class="controls">
                     <div class="control-card">
-                        <label>Длина маршрута</label>
-                        <div class="metric" id="distance">0.00 км</div>
+                        <label>Количество точек</label>
+                        <div class="metric" id="pointsCount">0</div>
                     </div>
 
                     <div class="control-card">
-                        <label>Выбранный темп</label>
-                        <div class="metric" id="paceText">6.0 мин/км</div>
+                        <label>Длина маршрута</label>
+                        <div class="metric" id="distance">0.00 км</div>
                     </div>
 
                     <div class="control-card">
@@ -733,13 +819,44 @@ elif page == "Создать маршрут":
                         <button class="save-button" onclick="saveRoute()">Создать</button>
                     </div>
                 </div>
+            </div>
 
-                <div class="success" id="successBox">
-                    ✅ Маршрут создан!
+            <div class="success-overlay" id="successOverlay">
+                <div class="success-modal">
+                    <div class="check">✓</div>
+                    <h2>Ваш маршрут сохранён!</h2>
+                    <p>
+                        Сейчас вы будете перенаправлены на стартовое окно.
+                        Там появится ваша тренировка с картой, дистанцией, темпом и временем.
+                    </p>
                 </div>
             </div>
 
             <script>
+                // ---------------------------------------------------------
+                // Настройка ограничения даты: сегодня + максимум 5 дней
+                // ---------------------------------------------------------
+                function setupDateLimit() {
+                    var dateInput = document.getElementById("runDate");
+
+                    var today = new Date();
+                    var maxDate = new Date();
+
+                    maxDate.setDate(today.getDate() + 5);
+
+                    var todayText = today.toISOString().split("T")[0];
+                    var maxDateText = maxDate.toISOString().split("T")[0];
+
+                    dateInput.min = todayText;
+                    dateInput.max = maxDateText;
+                    dateInput.value = todayText;
+                }
+
+                setupDateLimit();
+
+                // ---------------------------------------------------------
+                // Создание карты
+                // ---------------------------------------------------------
                 var map = L.map('map').setView([56.010563, 92.852572], 12);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -747,6 +864,9 @@ elif page == "Создать маршрут":
                     attribution: '© OpenStreetMap'
                 }).addTo(map);
 
+                // ---------------------------------------------------------
+                // Переменные маршрута
+                // ---------------------------------------------------------
                 var routePoints = [];
                 var routeMarkers = [];
                 var routeLine = null;
@@ -758,6 +878,9 @@ elif page == "Создать маршрут":
                 var routeFinished = false;
                 var routeDistance = 0;
 
+                // ---------------------------------------------------------
+                // Начать маршрут
+                // ---------------------------------------------------------
                 function startRoute() {
                     clearRoute();
 
@@ -769,6 +892,9 @@ elif page == "Создать маршрут":
                         "Режим: ставьте точки маршрута кликами по карте.";
                 }
 
+                // ---------------------------------------------------------
+                // Включить режим финиша
+                // ---------------------------------------------------------
                 function enableFinishMode() {
                     if (!routeStarted) {
                         alert("Сначала нажмите «Начать маршрут».");
@@ -786,6 +912,9 @@ elif page == "Создать маршрут":
                         "Режим: кликните по карте, чтобы поставить финиш.";
                 }
 
+                // ---------------------------------------------------------
+                // Завершить маршрут по последней точке
+                // ---------------------------------------------------------
                 function finishRoute() {
                     if (routePoints.length < 2) {
                         alert("Для маршрута нужно минимум две точки.");
@@ -809,6 +938,9 @@ elif page == "Создать маршрут":
                         "Маршрут завершён. Длина и время рассчитаны.";
                 }
 
+                // ---------------------------------------------------------
+                // Клик по карте
+                // ---------------------------------------------------------
                 map.on('click', function(event) {
                     if (!routeStarted) {
                         return;
@@ -854,6 +986,9 @@ elif page == "Создать маршрут":
                     updateInfo();
                 });
 
+                // ---------------------------------------------------------
+                // Перерисовка линии маршрута
+                // ---------------------------------------------------------
                 function redrawRoute() {
                     if (routeLine !== null) {
                         map.removeLayer(routeLine);
@@ -867,6 +1002,9 @@ elif page == "Создать маршрут":
                     }
                 }
 
+                // ---------------------------------------------------------
+                // Удалить последнюю точку
+                // ---------------------------------------------------------
                 function removeLastPoint() {
                     if (routePoints.length === 0) {
                         alert("Точек маршрута пока нет.");
@@ -893,6 +1031,9 @@ elif page == "Создать маршрут":
                         "Последняя точка удалена. Можно продолжать маршрут.";
                 }
 
+                // ---------------------------------------------------------
+                // Полностью перерисовать маркеры
+                // ---------------------------------------------------------
                 function redrawAllMarkers() {
                     if (startMarker !== null) {
                         map.removeLayer(startMarker);
@@ -930,6 +1071,9 @@ elif page == "Создать маршрут":
                     }
                 }
 
+                // ---------------------------------------------------------
+                // Очистить маршрут
+                // ---------------------------------------------------------
                 function clearRoute() {
                     routePoints = [];
 
@@ -965,6 +1109,9 @@ elif page == "Создать маршрут":
                         "Режим: маршрут очищен. Нажмите «Начать маршрут».";
                 }
 
+                // ---------------------------------------------------------
+                // Расчёт длины маршрута
+                // ---------------------------------------------------------
                 function calculateDistance() {
                     var distanceMeters = 0;
 
@@ -979,6 +1126,9 @@ elif page == "Создать маршрут":
                     return distanceMeters / 1000;
                 }
 
+                // ---------------------------------------------------------
+                // Форматирование времени
+                // ---------------------------------------------------------
                 function formatTime(minutes) {
                     if (minutes <= 0) {
                         return "0 мин";
@@ -994,6 +1144,9 @@ elif page == "Создать маршрут":
                     return mins + " мин";
                 }
 
+                // ---------------------------------------------------------
+                // Обновление длины, темпа и времени
+                // ---------------------------------------------------------
                 function updateInfo() {
                     routeDistance = calculateDistance();
 
@@ -1008,9 +1161,6 @@ elif page == "Создать маршрут":
                     document.getElementById("distance").innerText =
                         routeDistance.toFixed(2) + " км";
 
-                    document.getElementById("paceText").innerText =
-                        pace.toFixed(1) + " мин/км";
-
                     document.getElementById("timeText").innerText =
                         formatTime(totalMinutes);
 
@@ -1018,8 +1168,12 @@ elif page == "Создать маршрут":
                         routePoints.length;
                 }
 
+                // ---------------------------------------------------------
+                // Сохранить маршрут и перейти на стартовое окно
+                // ---------------------------------------------------------
                 function saveRoute() {
                     var name = document.getElementById("routeName").value;
+                    var description = document.getElementById("routeDescription").value;
                     var date = document.getElementById("runDate").value;
                     var pace = document.getElementById("pace").value;
                     var time = document.getElementById("timeText").innerText;
@@ -1034,15 +1188,38 @@ elif page == "Создать маршрут":
                         return;
                     }
 
-                    var successBox = document.getElementById("successBox");
+                    var simplePoints = [];
 
-                    successBox.style.display = "block";
-                    successBox.innerHTML =
-                        "✅ Маршрут <b>" + name + "</b> создан!<br>" +
-                        "Дата: <b>" + date + "</b><br>" +
-                        "Длина: <b>" + routeDistance.toFixed(2) + " км</b><br>" +
-                        "Темп: <b>" + pace + " мин/км</b><br>" +
-                        "Примерное время: <b>" + time + "</b>";
+                    for (var i = 0; i < routePoints.length; i++) {
+                        simplePoints.push([
+                            routePoints[i].lat,
+                            routePoints[i].lng
+                        ]);
+                    }
+
+                    var overlay = document.getElementById("successOverlay");
+                    overlay.style.display = "flex";
+
+                    setTimeout(function() {
+                        overlay.classList.add("show");
+                    }, 50);
+
+                    var params = new URLSearchParams();
+
+                    params.set("page", "Стартовое окно");
+                    params.set("saved_route", "1");
+                    params.set("title", name);
+                    params.set("description", description);
+                    params.set("date", date);
+                    params.set("distance", routeDistance.toFixed(2));
+                    params.set("pace", pace);
+                    params.set("time", time);
+                    params.set("points", JSON.stringify(simplePoints));
+
+                    setTimeout(function() {
+                        window.parent.location.href =
+                            window.parent.location.pathname + "?" + params.toString();
+                    }, 1800);
                 }
 
                 updateInfo();
@@ -1052,6 +1229,7 @@ elif page == "Создать маршрут":
         """,
         height=820
     )
+
 
 # ---------------------------------------------------------
 # 3. Найти компанию
