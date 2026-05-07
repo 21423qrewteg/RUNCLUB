@@ -1,5 +1,4 @@
 import json
-import math
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -91,14 +90,15 @@ st.markdown("""
 # Демонстрационные данные
 # ---------------------------------------------------------
 
-# Лента тренировок других участников
+# Лента тренировок других участников.
+# Точки маршрутов подобраны так, чтобы визуально идти по улицам Красноярска.
 feed_activities = [
     {
         "user": "Даня",
         "avatar": "🧢",
         "date": "Сегодня, 08:20",
-        "title": "Утренняя пробежка по набережной",
-        "description": "Хорошая погода, лёгкий темп и красивый вид на Енисей.",
+        "title": "Утренняя пробежка по городу",
+        "description": "Спокойный утренний маршрут по улицам Красноярска. Отличная погода и ровный темп.",
         "distance": "5.2 км",
         "pace": "5:48 мин/км",
         "time": "30 мин",
@@ -106,19 +106,20 @@ feed_activities = [
         "comments": 3,
         "status": "Завершено",
         "points": [
-            [56.0211, 92.8702],
-            [56.0174, 92.8790],
-            [56.0125, 92.8867],
-            [56.0081, 92.8952],
-            [56.0045, 92.9040]
+            [56.0212, 92.8380],
+            [56.0198, 92.8465],
+            [56.0182, 92.8555],
+            [56.0168, 92.8640],
+            [56.0150, 92.8720],
+            [56.0134, 92.8810]
         ]
     },
     {
         "user": "Аня",
         "avatar": "🎧",
         "date": "Вчера, 19:10",
-        "title": "Вечерний бег в парке",
-        "description": "Спокойная тренировка после школы. В следующий раз хочет собрать компанию.",
+        "title": "Вечерний бег после школы",
+        "description": "Лёгкая пробежка вечером. Маршрут проходил по спокойным улицам и рядом с парковой зоной.",
         "distance": "3.8 км",
         "pace": "6:20 мин/км",
         "time": "24 мин",
@@ -126,19 +127,19 @@ feed_activities = [
         "comments": 5,
         "status": "Завершено",
         "points": [
-            [56.0120, 92.8244],
-            [56.0151, 92.8290],
-            [56.0175, 92.8355],
-            [56.0142, 92.8420],
-            [56.0100, 92.8360]
+            [56.0105, 92.8060],
+            [56.0120, 92.8140],
+            [56.0138, 92.8225],
+            [56.0150, 92.8310],
+            [56.0165, 92.8390]
         ]
     },
     {
         "user": "Маша",
         "avatar": "🏃‍♀️",
         "date": "Вчера, 17:45",
-        "title": "Быстрая тренировка на стадионе",
-        "description": "Интервалы и работа над скоростью. Было сложно, но результат отличный.",
+        "title": "Быстрая тренировка на районе",
+        "description": "Небольшой круговой маршрут для тренировки скорости и выносливости.",
         "distance": "4.0 км",
         "pace": "5:10 мин/км",
         "time": "21 мин",
@@ -146,11 +147,12 @@ feed_activities = [
         "comments": 4,
         "status": "Завершено",
         "points": [
-            [56.0152, 92.8930],
-            [56.0170, 92.8975],
-            [56.0144, 92.9022],
-            [56.0117, 92.8981],
-            [56.0152, 92.8930]
+            [56.0150, 92.8900],
+            [56.0155, 92.8950],
+            [56.0140, 92.9000],
+            [56.0120, 92.8985],
+            [56.0125, 92.8925],
+            [56.0150, 92.8900]
         ]
     },
     {
@@ -158,7 +160,7 @@ feed_activities = [
         "avatar": "⌚",
         "date": "2 дня назад",
         "title": "Длинный маршрут по Красноярску",
-        "description": "Пробежал новый маршрут через несколько районов города.",
+        "description": "Длинная пробежка по городским улицам. Хороший вариант для тренировки выносливости.",
         "distance": "8.5 км",
         "pace": "6:05 мин/км",
         "time": "52 мин",
@@ -166,12 +168,13 @@ feed_activities = [
         "comments": 2,
         "status": "Завершено",
         "points": [
-            [56.0465, 92.9342],
-            [56.0410, 92.9201],
-            [56.0350, 92.9062],
-            [56.0272, 92.8910],
-            [56.0200, 92.8765],
-            [56.0140, 92.8650]
+            [56.0400, 92.9000],
+            [56.0355, 92.8910],
+            [56.0310, 92.8820],
+            [56.0265, 92.8730],
+            [56.0220, 92.8640],
+            [56.0180, 92.8550],
+            [56.0140, 92.8460]
         ]
     }
 ]
@@ -256,6 +259,44 @@ my_events = [
 
 
 # ---------------------------------------------------------
+# Лайки и комментарии хранятся в памяти приложения
+# ---------------------------------------------------------
+if "activity_likes" not in st.session_state:
+    st.session_state.activity_likes = {
+        "activity_0": 12,
+        "activity_1": 18,
+        "activity_2": 21,
+        "activity_3": 15,
+        "user_saved": 0
+    }
+
+if "activity_comments" not in st.session_state:
+    st.session_state.activity_comments = {
+        "activity_0": [
+            {"author": "Аня", "text": "Крутой маршрут!"},
+            {"author": "Маша", "text": "Тоже хочу пробежать там."},
+            {"author": "Игорь", "text": "Темп отличный!"}
+        ],
+        "activity_1": [
+            {"author": "Даня", "text": "Вечером в парке красиво."},
+            {"author": "Игорь", "text": "Можно в следующий раз вместе."}
+        ],
+        "activity_2": [
+            {"author": "Алексей", "text": "Стадион — хорошее место для скорости."},
+            {"author": "Даня", "text": "Сильная тренировка!"}
+        ],
+        "activity_3": [
+            {"author": "Маша", "text": "Длинный маршрут, уважение!"},
+            {"author": "Аня", "text": "Надо попробовать такой же."}
+        ],
+        "user_saved": []
+    }
+
+if "liked_by_me" not in st.session_state:
+    st.session_state.liked_by_me = {}
+
+
+# ---------------------------------------------------------
 # Вспомогательные функции
 # ---------------------------------------------------------
 def get_query_value(name, default=""):
@@ -273,6 +314,10 @@ def get_status_class(status):
     if status == "запланировано":
         return "status-planned"
     if status == "завершено":
+        return "status-done"
+    if status == "Запланировано":
+        return "status-planned"
+    if status == "Завершено":
         return "status-done"
     return "status-cancelled"
 
@@ -353,7 +398,7 @@ def show_activity_map(points, map_key):
     )
 
 
-def show_activity_card(activity, index, is_user=False):
+def show_activity_card(activity, activity_id, is_user=False):
     """Показывает карточку тренировки в стартовой ленте."""
     with st.container(border=True):
         col_avatar, col_info = st.columns([1, 8])
@@ -363,7 +408,10 @@ def show_activity_card(activity, index, is_user=False):
 
         with col_info:
             if is_user:
-                st.markdown(f"### {activity['user']} <span class='red-text'>— ваш маршрут</span>", unsafe_allow_html=True)
+                st.markdown(
+                    f"### {activity['user']} <span class='red-text'>— ваш маршрут</span>",
+                    unsafe_allow_html=True
+                )
             else:
                 st.markdown(f"### {activity['user']}")
 
@@ -372,7 +420,7 @@ def show_activity_card(activity, index, is_user=False):
         st.markdown(f"## {activity['title']}")
         st.write(activity["description"])
 
-        show_activity_map(activity["points"], f"activity_{index}")
+        show_activity_map(activity["points"], f"map_{activity_id}")
 
         stat1, stat2, stat3, stat4 = st.columns(4)
 
@@ -387,24 +435,67 @@ def show_activity_card(activity, index, is_user=False):
 
         with stat4:
             st.markdown("**Статус**")
+            status_class = get_status_class(activity["status"])
             st.markdown(
-                f"<span class='status-done'>{activity['status']}</span>",
+                f"<span class='{status_class}'>{activity['status']}</span>",
                 unsafe_allow_html=True
             )
 
         st.markdown("---")
 
+        current_likes = st.session_state.activity_likes.get(activity_id, 0)
+        comments_count = len(st.session_state.activity_comments.get(activity_id, []))
+
         react1, react2, react3 = st.columns([1, 1, 4])
 
         with react1:
-            st.write(f"❤️ {activity['likes']} лайков")
+            if st.button(f"❤️ {current_likes} лайков", key=f"like_{activity_id}"):
+                if not st.session_state.liked_by_me.get(activity_id, False):
+                    st.session_state.activity_likes[activity_id] = current_likes + 1
+                    st.session_state.liked_by_me[activity_id] = True
+                    st.rerun()
+                else:
+                    st.info("Вы уже поставили лайк.")
 
         with react2:
-            st.write(f"💬 {activity['comments']} комментариев")
+            if st.button(f"💬 {comments_count} комментариев", key=f"comments_{activity_id}"):
+                st.query_params["page"] = "Комментарии"
+                st.query_params["activity_id"] = activity_id
+                st.rerun()
 
         with react3:
-            if st.button("Поставить лайк", key=f"like_{index}"):
-                st.success("Вы поставили лайк!")
+            st.write("Нажмите на комментарии, чтобы открыть обсуждение.")
+
+
+def get_user_saved_activity():
+    """Создаёт карточку сохранённого пользователем маршрута из адресной строки."""
+    title = get_query_value("title", "Мой маршрут")
+    description = get_query_value("description", "Маршрут создан в приложении RunMate.")
+    date = get_query_value("date", "Дата не выбрана")
+    distance = get_query_value("distance", "0.00")
+    pace = get_query_value("pace", "6.0")
+    time = get_query_value("time", "0 мин")
+    points_text = get_query_value("points", "[]")
+
+    try:
+        user_points = json.loads(points_text)
+    except Exception:
+        user_points = []
+
+    return {
+        "user": "Вы",
+        "avatar": "🙂",
+        "date": date,
+        "title": title,
+        "description": description,
+        "distance": f"{distance} км",
+        "pace": f"{pace} мин/км",
+        "time": time,
+        "likes": 0,
+        "comments": 0,
+        "status": "Запланировано",
+        "points": user_points
+    }
 
 
 # ---------------------------------------------------------
@@ -416,10 +507,10 @@ pages = [
     "Найти компанию",
     "Чат",
     "Профиль",
-    "Мои пробежки"
+    "Мои пробежки",
+    "Комментарии"
 ]
 
-# Если пользователь пришёл после сохранения маршрута, открываем стартовое окно
 page_from_url = get_query_value("page", "Стартовое окно")
 
 if page_from_url in pages:
@@ -463,43 +554,23 @@ if page == "Стартовое окно":
 
     st.markdown("## Лента активности")
 
-    # Проверяем, был ли сохранён маршрут из окна «Создать маршрут»
     saved_route = get_query_value("saved_route", "0")
 
     if saved_route == "1":
-        title = get_query_value("title", "Мой маршрут")
-        description = get_query_value("description", "Маршрут создан в приложении RunMate.")
-        date = get_query_value("date", "Дата не выбрана")
-        distance = get_query_value("distance", "0.00")
-        pace = get_query_value("pace", "6.0")
-        time = get_query_value("time", "0 мин")
-        points_text = get_query_value("points", "[]")
+        user_activity = get_user_saved_activity()
 
-        try:
-            user_points = json.loads(points_text)
-        except Exception:
-            user_points = []
+        if "user_saved" not in st.session_state.activity_likes:
+            st.session_state.activity_likes["user_saved"] = 0
 
-        user_activity = {
-            "user": "Вы",
-            "avatar": "🙂",
-            "date": date,
-            "title": title,
-            "description": description,
-            "distance": f"{distance} км",
-            "pace": f"{pace} мин/км",
-            "time": time,
-            "likes": 0,
-            "comments": 0,
-            "status": "Запланировано",
-            "points": user_points
-        }
+        if "user_saved" not in st.session_state.activity_comments:
+            st.session_state.activity_comments["user_saved"] = []
 
         show_activity_card(user_activity, "user_saved", is_user=True)
         st.write("")
 
     for index, activity in enumerate(feed_activities):
-        show_activity_card(activity, index)
+        activity_id = f"activity_{index}"
+        show_activity_card(activity, activity_id)
         st.write("")
 
 
@@ -757,7 +828,7 @@ elif page == "Создать маршрут":
 
                 <div class="hint">
                     1. Нажмите «Начать маршрут». 
-                    2. Кликайте по карте, чтобы ставить точки.
+                    2. Кликайте по карте, чтобы ставить точки по дорогам.
                     3. Нажмите «Поставить финиш», затем кликните по карте.
                     4. Длина и время считаются автоматически.
                 </div>
@@ -834,7 +905,7 @@ elif page == "Создать маршрут":
 
             <script>
                 // ---------------------------------------------------------
-                // Настройка ограничения даты: сегодня + максимум 5 дней
+                // Ограничение даты: сегодня + максимум 5 дней
                 // ---------------------------------------------------------
                 function setupDateLimit() {
                     var dateInput = document.getElementById("runDate");
@@ -1229,6 +1300,92 @@ elif page == "Создать маршрут":
         """,
         height=820
     )
+
+
+# ---------------------------------------------------------
+# Страница комментариев
+# ---------------------------------------------------------
+elif page == "Комментарии":
+    st.markdown('<div class="big-title">Комментарии 💬</div>', unsafe_allow_html=True)
+
+    activity_id = get_query_value("activity_id", "activity_0")
+
+    # Получаем нужную тренировку
+    if activity_id == "user_saved":
+        activity = get_user_saved_activity()
+    else:
+        try:
+            index = int(activity_id.replace("activity_", ""))
+            activity = feed_activities[index]
+        except Exception:
+            activity = feed_activities[0]
+            activity_id = "activity_0"
+
+    if activity_id not in st.session_state.activity_comments:
+        st.session_state.activity_comments[activity_id] = []
+
+    if activity_id not in st.session_state.activity_likes:
+        st.session_state.activity_likes[activity_id] = 0
+
+    if st.button("← Вернуться в ленту"):
+        st.query_params["page"] = "Стартовое окно"
+        st.rerun()
+
+    with st.container(border=True):
+        st.markdown(f"## {activity['avatar']} {activity['user']}")
+        st.caption(activity["date"])
+
+        st.markdown(f"### {activity['title']}")
+        st.write(activity["description"])
+
+        show_activity_map(activity["points"], f"comments_{activity_id}")
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            st.metric("Дистанция", activity["distance"])
+
+        with c2:
+            st.metric("Темп", activity["pace"])
+
+        with c3:
+            st.metric("Время", activity["time"])
+
+    st.markdown("## Комментарии")
+
+    comments = st.session_state.activity_comments[activity_id]
+
+    if len(comments) == 0:
+        st.info("Комментариев пока нет. Напишите первый комментарий.")
+
+    for comment in comments:
+        st.markdown(
+            f"""
+            <div class="small-card">
+                <b>{comment['author']}</b><br>
+                {comment['text']}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    st.markdown("## Добавить комментарий")
+
+    comment_author = st.text_input("Ваше имя", "Вы")
+    new_comment = st.text_area("Текст комментария")
+
+    if st.button("Сохранить комментарий"):
+        if new_comment.strip() == "":
+            st.warning("Введите текст комментария.")
+        else:
+            st.session_state.activity_comments[activity_id].append(
+                {
+                    "author": comment_author,
+                    "text": new_comment
+                }
+            )
+            st.success("Комментарий сохранён!")
+            st.rerun()
 
 
 # ---------------------------------------------------------
