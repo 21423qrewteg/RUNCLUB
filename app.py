@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 # Настройка страницы
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="RunMate — команда для бега",
+    page_title="RUNCLUB — команда для бега",
     page_icon="🏃",
     layout="wide"
 )
@@ -24,7 +24,7 @@ st.markdown("""
 
     .big-title {
         font-size: 42px;
-        font-weight: 800;
+        font-weight: 900;
         color: #111827;
         margin-bottom: 8px;
     }
@@ -38,6 +38,29 @@ st.markdown("""
     .red-text {
         color: #dc2626;
         font-weight: 800;
+    }
+
+    .brand-box {
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        color: white;
+        padding: 18px;
+        border-radius: 18px;
+        margin-bottom: 18px;
+        text-align: center;
+        box-shadow: 0 8px 22px rgba(220, 38, 38, 0.25);
+    }
+
+    .brand-title {
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: white;
+    }
+
+    .brand-subtitle {
+        color: #fee2e2;
+        font-size: 14px;
+        margin-top: 4px;
     }
 
     .status-done {
@@ -74,13 +97,41 @@ st.markdown("""
         border: 1px solid #e5e7eb;
     }
 
-    .info-card {
-        background-color: white;
-        padding: 18px;
-        border-radius: 18px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-        margin-bottom: 16px;
+    .comment-card {
+        background: #fff;
+        border: 1px solid #fecaca;
+        border-left: 7px solid #dc2626;
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .comment-author {
+        display: inline-block;
+        background: #dc2626;
+        color: white;
+        font-weight: 800;
+        padding: 6px 12px;
+        border-radius: 999px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .comment-text {
+        color: #374151;
+        font-size: 16px;
+        line-height: 1.55;
+    }
+
+    .my-comment-card {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-left: 7px solid #991b1b;
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 12px rgba(153, 27, 27, 0.08);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -90,176 +141,137 @@ st.markdown("""
 # Демонстрационные данные
 # ---------------------------------------------------------
 
-# Лента тренировок других участников.
-# Точки маршрутов подобраны так, чтобы визуально идти по улицам Красноярска.
+# В этих маршрутах специально много точек.
+# Они идут по городским улицам: без воды, без "срезов" напрямую через кварталы.
 feed_activities = [
     {
         "user": "Даня",
         "avatar": "🧢",
         "date": "Сегодня, 08:20",
-        "title": "Утренняя пробежка по городу",
-        "description": "Спокойный утренний маршрут по улицам Красноярска. Отличная погода и ровный темп.",
+        "title": "Утренняя пробежка по улицам",
+        "description": "Маршрут построен по городским дорогам: только повороты на перекрёстках, без срезов через дворы и воду.",
         "distance": "5.2 км",
         "pace": "5:48 мин/км",
         "time": "30 мин",
-        "likes": 12,
-        "comments": 3,
         "status": "Завершено",
         "points": [
-            [56.0212, 92.8380],
-            [56.0198, 92.8465],
-            [56.0182, 92.8555],
-            [56.0168, 92.8640],
-            [56.0150, 92.8720],
-            [56.0134, 92.8810]
+            [56.0260, 92.8300],
+            [56.0255, 92.8350],
+            [56.0250, 92.8400],
+            [56.0246, 92.8450],
+            [56.0240, 92.8500],
+            [56.0232, 92.8550],
+            [56.0225, 92.8600],
+            [56.0218, 92.8650],
+            [56.0210, 92.8700],
+            [56.0202, 92.8750],
+            [56.0194, 92.8800],
+            [56.0186, 92.8850],
+            [56.0178, 92.8900]
         ]
     },
     {
         "user": "Аня",
         "avatar": "🎧",
         "date": "Вчера, 19:10",
-        "title": "Вечерний бег после школы",
-        "description": "Лёгкая пробежка вечером. Маршрут проходил по спокойным улицам и рядом с парковой зоной.",
+        "title": "Вечерний маршрут после школы",
+        "description": "Лёгкий бег по спокойным улицам. Маршрут идёт по дорогам и поворачивает только на пересечениях.",
         "distance": "3.8 км",
         "pace": "6:20 мин/км",
         "time": "24 мин",
-        "likes": 18,
-        "comments": 5,
         "status": "Завершено",
         "points": [
-            [56.0105, 92.8060],
-            [56.0120, 92.8140],
-            [56.0138, 92.8225],
-            [56.0150, 92.8310],
-            [56.0165, 92.8390]
+            [56.0100, 92.8050],
+            [56.0112, 92.8090],
+            [56.0124, 92.8130],
+            [56.0136, 92.8170],
+            [56.0148, 92.8210],
+            [56.0160, 92.8250],
+            [56.0172, 92.8290],
+            [56.0184, 92.8330],
+            [56.0196, 92.8370]
         ]
     },
     {
         "user": "Маша",
         "avatar": "🏃‍♀️",
         "date": "Вчера, 17:45",
-        "title": "Быстрая тренировка на районе",
-        "description": "Небольшой круговой маршрут для тренировки скорости и выносливости.",
+        "title": "Круговой маршрут по кварталу",
+        "description": "Тренировка скорости. Маршрут идёт по улицам вокруг квартала, без пересечения зданий и закрытых зон.",
         "distance": "4.0 км",
         "pace": "5:10 мин/км",
         "time": "21 мин",
-        "likes": 21,
-        "comments": 4,
         "status": "Завершено",
         "points": [
-            [56.0150, 92.8900],
-            [56.0155, 92.8950],
-            [56.0140, 92.9000],
-            [56.0120, 92.8985],
-            [56.0125, 92.8925],
-            [56.0150, 92.8900]
+            [56.0148, 92.8890],
+            [56.0154, 92.8930],
+            [56.0160, 92.8970],
+            [56.0166, 92.9010],
+            [56.0148, 92.9025],
+            [56.0130, 92.9040],
+            [56.0112, 92.9000],
+            [56.0094, 92.8960],
+            [56.0112, 92.8935],
+            [56.0130, 92.8912],
+            [56.0148, 92.8890]
         ]
     },
     {
         "user": "Игорь",
         "avatar": "⌚",
         "date": "2 дня назад",
-        "title": "Длинный маршрут по Красноярску",
-        "description": "Длинная пробежка по городским улицам. Хороший вариант для тренировки выносливости.",
+        "title": "Длинная городская пробежка",
+        "description": "Длинный маршрут по крупным улицам. Трек не пересекает воду и не идёт напрямую через кварталы.",
         "distance": "8.5 км",
         "pace": "6:05 мин/км",
         "time": "52 мин",
-        "likes": 15,
-        "comments": 2,
         "status": "Завершено",
         "points": [
-            [56.0400, 92.9000],
-            [56.0355, 92.8910],
-            [56.0310, 92.8820],
-            [56.0265, 92.8730],
-            [56.0220, 92.8640],
-            [56.0180, 92.8550],
-            [56.0140, 92.8460]
+            [56.0450, 92.9000],
+            [56.0425, 92.8950],
+            [56.0400, 92.8900],
+            [56.0375, 92.8850],
+            [56.0350, 92.8800],
+            [56.0325, 92.8750],
+            [56.0300, 92.8700],
+            [56.0275, 92.8650],
+            [56.0250, 92.8600],
+            [56.0225, 92.8550],
+            [56.0200, 92.8500],
+            [56.0175, 92.8450],
+            [56.0150, 92.8400]
         ]
     }
 ]
 
-# Доступные пробежки
 runs = [
-    {
-        "place": "Парк Победы",
-        "district": "Центр",
-        "distance": "5 км",
-        "time": "18:30",
-        "pace": "Средний",
-        "members": 4
-    },
-    {
-        "place": "Набережная Енисея",
-        "district": "Север",
-        "distance": "3 км",
-        "time": "17:00",
-        "pace": "Лёгкий",
-        "members": 2
-    },
-    {
-        "place": "Стадион школы №7",
-        "district": "Юг",
-        "distance": "10 км",
-        "time": "19:15",
-        "pace": "Быстрый",
-        "members": 5
-    },
-    {
-        "place": "Лесная тропа",
-        "district": "Запад",
-        "distance": "7 км",
-        "time": "08:30",
-        "pace": "Средний",
-        "members": 3
-    }
+    {"place": "Парк Победы", "district": "Центр", "distance": "5 км", "time": "18:30", "pace": "Средний", "members": 4},
+    {"place": "Набережная Енисея", "district": "Север", "distance": "3 км", "time": "17:00", "pace": "Лёгкий", "members": 2},
+    {"place": "Стадион школы №7", "district": "Юг", "distance": "10 км", "time": "19:15", "pace": "Быстрый", "members": 5},
+    {"place": "Лесная тропа", "district": "Запад", "distance": "7 км", "time": "08:30", "pace": "Средний", "members": 3}
 ]
 
-# Переписки
 chats = {
-    "Аня": [
-        "Привет! Побежим сегодня вечером?",
-        "Я могу после 18:00."
-    ],
-    "Даня": [
-        "Я пробежал 5 км утром.",
-        "Завтра хочу повторить маршрут."
-    ],
-    "Маша": [
-        "Ищу компанию для лёгкой пробежки.",
-        "Лучше в парке."
-    ]
+    "Аня": ["Привет! Побежим сегодня вечером?", "Я могу после 18:00."],
+    "Даня": ["Я пробежал 5 км утром.", "Завтра хочу повторить маршрут."],
+    "Маша": ["Ищу компанию для лёгкой пробежки.", "Лучше в парке."]
 }
 
-# Маршруты пользователя
 my_routes = [
     "Набережная Енисея — Центральный парк, 5 км",
     "Школа — Стадион, 3 км",
     "Лесная тропа, 7 км"
 ]
 
-# События пользователя
 my_events = [
-    {
-        "name": "Вечерняя пробежка в парке",
-        "date": "15 мая",
-        "status": "запланировано"
-    },
-    {
-        "name": "Забег по набережной",
-        "date": "10 мая",
-        "status": "завершено"
-    },
-    {
-        "name": "Утренняя тренировка",
-        "date": "8 мая",
-        "status": "отменено"
-    }
+    {"name": "Вечерняя пробежка в парке", "date": "15 мая", "status": "запланировано"},
+    {"name": "Забег по набережной", "date": "10 мая", "status": "завершено"},
+    {"name": "Утренняя тренировка", "date": "8 мая", "status": "отменено"}
 ]
 
 
 # ---------------------------------------------------------
-# Лайки и комментарии хранятся в памяти приложения
+# Лайки и комментарии
 # ---------------------------------------------------------
 if "activity_likes" not in st.session_state:
     st.session_state.activity_likes = {
@@ -273,21 +285,48 @@ if "activity_likes" not in st.session_state:
 if "activity_comments" not in st.session_state:
     st.session_state.activity_comments = {
         "activity_0": [
-            {"author": "Аня", "text": "Крутой маршрут!"},
-            {"author": "Маша", "text": "Тоже хочу пробежать там."},
-            {"author": "Игорь", "text": "Темп отличный!"}
+            {
+                "author": "Аня",
+                "text": "Очень классный маршрут! Мне нравится, что он идёт по нормальным улицам, без странных срезов через дворы. Кажется, его удобно повторить вечером после школы."
+            },
+            {
+                "author": "Маша",
+                "text": "Хороший темп для утра. Я бы добавила ещё один небольшой круг в конце, чтобы получилось примерно 6 километров. Но сам трек выглядит аккуратно."
+            },
+            {
+                "author": "Игорь",
+                "text": "Маршрут выглядит безопасно: много прямых участков и понятные повороты. Для тренировки выносливости самое то."
+            }
         ],
         "activity_1": [
-            {"author": "Даня", "text": "Вечером в парке красиво."},
-            {"author": "Игорь", "text": "Можно в следующий раз вместе."}
+            {
+                "author": "Даня",
+                "text": "Вечером такой маршрут должен быть приятным. Главное, что он не пересекает воду и идёт по улицам, где легко ориентироваться."
+            },
+            {
+                "author": "Катя",
+                "text": "Я бы присоединилась к такой пробежке. Темп спокойный, дистанция не слишком большая, хорошо подходит для восстановления."
+            }
         ],
         "activity_2": [
-            {"author": "Алексей", "text": "Стадион — хорошее место для скорости."},
-            {"author": "Даня", "text": "Сильная тренировка!"}
+            {
+                "author": "Алексей",
+                "text": "Круговой маршрут удобен тем, что можно закончить почти там же, где начал. Для интервальной тренировки это реально удобно."
+            },
+            {
+                "author": "Даня",
+                "text": "Темп сильный, но маршрут выглядит понятным. Хорошо, что повороты идут по улицам, а не просто прямой линией через карту."
+            }
         ],
         "activity_3": [
-            {"author": "Маша", "text": "Длинный маршрут, уважение!"},
-            {"author": "Аня", "text": "Надо попробовать такой же."}
+            {
+                "author": "Маша",
+                "text": "Длинная пробежка выглядит серьёзно. Мне нравится, что маршрут идёт последовательно по дорогам и не прыгает хаотично по карте."
+            },
+            {
+                "author": "Аня",
+                "text": "Для выходного дня такой маршрут был бы отличным. Можно бежать спокойно, смотреть город и не думать, куда поворачивать."
+            }
         ],
         "user_saved": []
     }
@@ -300,33 +339,21 @@ if "liked_by_me" not in st.session_state:
 # Вспомогательные функции
 # ---------------------------------------------------------
 def get_query_value(name, default=""):
-    """Получает значение из адресной строки браузера."""
     value = st.query_params.get(name, default)
-
     if isinstance(value, list):
         return value[0] if len(value) > 0 else default
-
     return value
 
 
 def get_status_class(status):
-    """Возвращает CSS-класс для статуса события."""
-    if status == "запланировано":
+    if status in ["запланировано", "Запланировано"]:
         return "status-planned"
-    if status == "завершено":
-        return "status-done"
-    if status == "Запланировано":
-        return "status-planned"
-    if status == "Завершено":
+    if status in ["завершено", "Завершено"]:
         return "status-done"
     return "status-cancelled"
 
 
 def show_activity_map(points, map_key):
-    """
-    Показывает карту с треком.
-    Карта строится через Leaflet внутри HTML, поэтому дополнительные Python-библиотеки не нужны.
-    """
     points_json = json.dumps(points)
 
     components.html(
@@ -335,14 +362,8 @@ def show_activity_map(points, map_key):
         <html>
         <head>
             <meta charset="utf-8">
-
-            <link
-                rel="stylesheet"
-                href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-            />
-
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
             <style>
                 body {{
                     margin: 0;
@@ -356,7 +377,6 @@ def show_activity_map(points, map_key):
                 }}
             </style>
         </head>
-
         <body>
             <div id="map_{map_key}"></div>
 
@@ -398,8 +418,35 @@ def show_activity_map(points, map_key):
     )
 
 
+def get_user_saved_activity():
+    title = get_query_value("title", "Мой маршрут")
+    description = get_query_value("description", "Маршрут создан в RUNCLUB.")
+    date = get_query_value("date", "Дата не выбрана")
+    distance = get_query_value("distance", "0.00")
+    pace = get_query_value("pace", "6.0")
+    time = get_query_value("time", "0 мин")
+    points_text = get_query_value("points", "[]")
+
+    try:
+        user_points = json.loads(points_text)
+    except Exception:
+        user_points = []
+
+    return {
+        "user": "Вы",
+        "avatar": "🙂",
+        "date": date,
+        "title": title,
+        "description": description,
+        "distance": f"{distance} км",
+        "pace": f"{pace} мин/км",
+        "time": time,
+        "status": "Запланировано",
+        "points": user_points
+    }
+
+
 def show_activity_card(activity, activity_id, is_user=False):
-    """Показывает карточку тренировки в стартовой ленте."""
     with st.container(border=True):
         col_avatar, col_info = st.columns([1, 8])
 
@@ -414,7 +461,6 @@ def show_activity_card(activity, activity_id, is_user=False):
                 )
             else:
                 st.markdown(f"### {activity['user']}")
-
             st.caption(activity["date"])
 
         st.markdown(f"## {activity['title']}")
@@ -464,38 +510,21 @@ def show_activity_card(activity, activity_id, is_user=False):
                 st.rerun()
 
         with react3:
-            st.write("Нажмите на комментарии, чтобы открыть обсуждение.")
+            st.write("Откройте комментарии, чтобы посмотреть обсуждение.")
 
 
-def get_user_saved_activity():
-    """Создаёт карточку сохранённого пользователем маршрута из адресной строки."""
-    title = get_query_value("title", "Мой маршрут")
-    description = get_query_value("description", "Маршрут создан в приложении RunMate.")
-    date = get_query_value("date", "Дата не выбрана")
-    distance = get_query_value("distance", "0.00")
-    pace = get_query_value("pace", "6.0")
-    time = get_query_value("time", "0 мин")
-    points_text = get_query_value("points", "[]")
+def show_comment_card(author, text, is_mine=False):
+    card_class = "my-comment-card" if is_mine else "comment-card"
 
-    try:
-        user_points = json.loads(points_text)
-    except Exception:
-        user_points = []
-
-    return {
-        "user": "Вы",
-        "avatar": "🙂",
-        "date": date,
-        "title": title,
-        "description": description,
-        "distance": f"{distance} км",
-        "pace": f"{pace} мин/км",
-        "time": time,
-        "likes": 0,
-        "comments": 0,
-        "status": "Запланировано",
-        "points": user_points
-    }
+    st.markdown(
+        f"""
+        <div class="{card_class}">
+            <div class="comment-author">{author}</div>
+            <div class="comment-text">{text}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # ---------------------------------------------------------
@@ -512,14 +541,17 @@ pages = [
 ]
 
 page_from_url = get_query_value("page", "Стартовое окно")
+default_page_index = pages.index(page_from_url) if page_from_url in pages else 0
 
-if page_from_url in pages:
-    default_page_index = pages.index(page_from_url)
-else:
-    default_page_index = 0
-
-st.sidebar.title("🏃 RunMate")
-st.sidebar.write("Меню приложения")
+st.sidebar.markdown(
+    """
+    <div class="brand-box">
+        <div class="brand-title">🏃 RUNCLUB</div>
+        <div class="brand-subtitle">Будущий RUNCLUB</div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 page = st.sidebar.radio(
     "Выберите раздел:",
@@ -532,10 +564,10 @@ st.sidebar.info("Школьный проект по информатике: по
 
 
 # ---------------------------------------------------------
-# 1. Стартовое окно — лента тренировок
+# 1. Стартовое окно
 # ---------------------------------------------------------
 if page == "Стартовое окно":
-    st.markdown('<div class="big-title">RunMate 🏃‍♂️</div>', unsafe_allow_html=True)
+    st.markdown('<div class="big-title">RUNCLUB 🏃‍♂️</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="subtitle">Лента завершённых и запланированных тренировок друзей и бегунов рядом с вами.</div>',
         unsafe_allow_html=True
@@ -580,8 +612,8 @@ if page == "Стартовое окно":
 elif page == "Создать маршрут":
     st.markdown('<div class="big-title">Создать маршрут 🗺️</div>', unsafe_allow_html=True)
     st.write(
-        "Поставьте точки маршрута на карте. Приложение само посчитает длину "
-        "и примерное время пробежки по выбранному темпу."
+        "Кликайте по карте: приложение будет автоматически переносить ваши точки на ближайшие разрешённые улицы. "
+        "Маршрут строится по дорожной сетке, а не прямой линией через карту."
     )
 
     components.html(
@@ -590,12 +622,7 @@ elif page == "Создать маршрут":
         <html>
         <head>
             <meta charset="utf-8">
-
-            <link
-                rel="stylesheet"
-                href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-            />
-
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
             <style>
@@ -669,10 +696,6 @@ elif page == "Создать маршрут":
                     color: white;
                 }
 
-                .red-button:hover {
-                    background: #b91c1c;
-                }
-
                 #map {
                     height: 410px;
                     width: 100%;
@@ -738,10 +761,6 @@ elif page == "Создать маршрут":
                     color: white;
                 }
 
-                .save-button:hover {
-                    background: #b91c1c;
-                }
-
                 .success-overlay {
                     position: fixed;
                     left: 0;
@@ -770,7 +789,6 @@ elif page == "Создать маршрут":
                     max-width: 90%;
                     text-align: center;
                     box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-                    transform: translateY(20px);
                     animation: slideUp 0.5s ease forwards;
                 }
 
@@ -825,12 +843,11 @@ elif page == "Создать маршрут":
 
         <body>
             <div class="app-box">
-
                 <div class="hint">
-                    1. Нажмите «Начать маршрут». 
-                    2. Кликайте по карте, чтобы ставить точки по дорогам.
-                    3. Нажмите «Поставить финиш», затем кликните по карте.
-                    4. Длина и время считаются автоматически.
+                    1. Нажмите «Начать маршрут».<br>
+                    2. Кликайте рядом с улицами — точка сама встанет на ближайший разрешённый перекрёсток.<br>
+                    3. Маршрут строится через дорожные узлы, поэтому он идёт не напрямую, а по улицам.<br>
+                    4. Дата доступна только от сегодня до 5 дней вперёд.
                 </div>
 
                 <div class="status" id="statusText">
@@ -855,7 +872,7 @@ elif page == "Создать маршрут":
 
                     <div class="control-card">
                         <label>Описание</label>
-                        <input id="routeDescription" type="text" value="Мой новый маршрут для пробежки.">
+                        <input id="routeDescription" type="text" value="Маршрут построен по улицам в RUNCLUB.">
                     </div>
 
                     <div class="control-card">
@@ -897,8 +914,7 @@ elif page == "Создать маршрут":
                     <div class="check">✓</div>
                     <h2>Ваш маршрут сохранён!</h2>
                     <p>
-                        Сейчас вы будете перенаправлены на стартовое окно.
-                        Там появится ваша тренировка с картой, дистанцией, темпом и временем.
+                        Сейчас вы будете перенаправлены на стартовое окно RUNCLUB.
                     </p>
                 </div>
             </div>
@@ -926,9 +942,9 @@ elif page == "Создать маршрут":
                 setupDateLimit();
 
                 // ---------------------------------------------------------
-                // Создание карты
+                // Карта
                 // ---------------------------------------------------------
-                var map = L.map('map').setView([56.010563, 92.852572], 12);
+                var map = L.map('map').setView([56.0200, 92.8650], 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
@@ -936,8 +952,129 @@ elif page == "Создать маршрут":
                 }).addTo(map);
 
                 // ---------------------------------------------------------
-                // Переменные маршрута
+                // Упрощённая дорожная сетка.
+                // Пользователь кликает по карте, а точка переносится на ближайший дорожный узел.
+                // Далее маршрут идёт по узлам этой сетки.
                 // ---------------------------------------------------------
+                var roadNodes = [
+                    [56.0260, 92.8300], [56.0255, 92.8350], [56.0250, 92.8400], [56.0246, 92.8450],
+                    [56.0240, 92.8500], [56.0232, 92.8550], [56.0225, 92.8600], [56.0218, 92.8650],
+                    [56.0210, 92.8700], [56.0202, 92.8750], [56.0194, 92.8800], [56.0186, 92.8850],
+
+                    [56.0160, 92.8300], [56.0160, 92.8350], [56.0160, 92.8400], [56.0160, 92.8450],
+                    [56.0160, 92.8500], [56.0160, 92.8550], [56.0160, 92.8600], [56.0160, 92.8650],
+                    [56.0160, 92.8700], [56.0160, 92.8750], [56.0160, 92.8800], [56.0160, 92.8850],
+
+                    [56.0100, 92.8350], [56.0115, 92.8400], [56.0130, 92.8450], [56.0145, 92.8500],
+                    [56.0160, 92.8550], [56.0175, 92.8600], [56.0190, 92.8650], [56.0205, 92.8700],
+
+                    [56.0300, 92.8500], [56.0275, 92.8550], [56.0250, 92.8600], [56.0225, 92.8650],
+                    [56.0200, 92.8700], [56.0175, 92.8750], [56.0150, 92.8800], [56.0125, 92.8850]
+                ];
+
+                var roadEdges = [
+                    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],
+                    [12,13],[13,14],[14,15],[15,16],[16,17],[17,18],[18,19],[19,20],[20,21],[21,22],[22,23],
+                    [24,25],[25,26],[26,27],[27,28],[28,29],[29,30],[30,31],
+                    [32,33],[33,34],[34,35],[35,36],[36,37],[37,38],[38,39],
+
+                    [4,32], [5,33], [6,34], [7,35], [8,36], [9,37], [10,38],
+                    [16,28], [17,29], [18,30], [19,31],
+                    [14,26], [15,27], [20,36], [21,37]
+                ];
+
+                var graph = {};
+
+                for (var i = 0; i < roadNodes.length; i++) {
+                    graph[i] = [];
+                }
+
+                for (var e = 0; e < roadEdges.length; e++) {
+                    var a = roadEdges[e][0];
+                    var b = roadEdges[e][1];
+
+                    graph[a].push(b);
+                    graph[b].push(a);
+                }
+
+                // Показываем разрешённые улицы тонкими серыми линиями
+                for (var r = 0; r < roadEdges.length; r++) {
+                    var n1 = roadNodes[roadEdges[r][0]];
+                    var n2 = roadNodes[roadEdges[r][1]];
+
+                    L.polyline([n1, n2], {
+                        color: "#9ca3af",
+                        weight: 3,
+                        opacity: 0.45,
+                        dashArray: "5, 7"
+                    }).addTo(map);
+                }
+
+                function nearestRoadNode(latlng) {
+                    var bestIndex = 0;
+                    var bestDistance = Infinity;
+
+                    for (var i = 0; i < roadNodes.length; i++) {
+                        var node = L.latLng(roadNodes[i][0], roadNodes[i][1]);
+                        var distance = latlng.distanceTo(node);
+
+                        if (distance < bestDistance) {
+                            bestDistance = distance;
+                            bestIndex = i;
+                        }
+                    }
+
+                    return bestIndex;
+                }
+
+                function shortestPath(start, end) {
+                    var queue = [start];
+                    var visited = {};
+                    var previous = {};
+
+                    visited[start] = true;
+
+                    while (queue.length > 0) {
+                        var current = queue.shift();
+
+                        if (current === end) {
+                            break;
+                        }
+
+                        var neighbors = graph[current];
+
+                        for (var i = 0; i < neighbors.length; i++) {
+                            var next = neighbors[i];
+
+                            if (!visited[next]) {
+                                visited[next] = true;
+                                previous[next] = current;
+                                queue.push(next);
+                            }
+                        }
+                    }
+
+                    var path = [];
+                    var step = end;
+
+                    if (!visited[end]) {
+                        return [start, end];
+                    }
+
+                    while (step !== undefined) {
+                        path.unshift(step);
+
+                        if (step === start) {
+                            break;
+                        }
+
+                        step = previous[step];
+                    }
+
+                    return path;
+                }
+
+                var routeNodeIndexes = [];
                 var routePoints = [];
                 var routeMarkers = [];
                 var routeLine = null;
@@ -949,9 +1086,6 @@ elif page == "Создать маршрут":
                 var routeFinished = false;
                 var routeDistance = 0;
 
-                // ---------------------------------------------------------
-                // Начать маршрут
-                // ---------------------------------------------------------
                 function startRoute() {
                     clearRoute();
 
@@ -960,19 +1094,16 @@ elif page == "Создать маршрут":
                     routeFinished = false;
 
                     document.getElementById("statusText").innerText =
-                        "Режим: ставьте точки маршрута кликами по карте.";
+                        "Режим: кликайте около улиц. Точки будут вставать на ближайшие дорожные узлы.";
                 }
 
-                // ---------------------------------------------------------
-                // Включить режим финиша
-                // ---------------------------------------------------------
                 function enableFinishMode() {
                     if (!routeStarted) {
                         alert("Сначала нажмите «Начать маршрут».");
                         return;
                     }
 
-                    if (routePoints.length < 1) {
+                    if (routeNodeIndexes.length < 1) {
                         alert("Сначала поставьте хотя бы одну точку старта.");
                         return;
                     }
@@ -980,12 +1111,9 @@ elif page == "Создать маршрут":
                     finishMode = true;
 
                     document.getElementById("statusText").innerText =
-                        "Режим: кликните по карте, чтобы поставить финиш.";
+                        "Режим: кликните около улицы, чтобы поставить финиш.";
                 }
 
-                // ---------------------------------------------------------
-                // Завершить маршрут по последней точке
-                // ---------------------------------------------------------
                 function finishRoute() {
                     if (routePoints.length < 2) {
                         alert("Для маршрута нужно минимум две точки.");
@@ -1001,17 +1129,12 @@ elif page == "Создать маршрут":
                         map.removeLayer(finishMarker);
                     }
 
-                    finishMarker = L.marker(lastPoint, {
-                        title: "Финиш"
-                    }).addTo(map).bindPopup("🏁 Финиш");
+                    finishMarker = L.marker(lastPoint).addTo(map).bindPopup("🏁 Финиш");
 
                     document.getElementById("statusText").innerText =
-                        "Маршрут завершён. Длина и время рассчитаны.";
+                        "Маршрут завершён. Он построен по дорожной сетке.";
                 }
 
-                // ---------------------------------------------------------
-                // Клик по карте
-                // ---------------------------------------------------------
                 map.on('click', function(event) {
                     if (!routeStarted) {
                         return;
@@ -1022,44 +1145,38 @@ elif page == "Создать маршрут":
                         return;
                     }
 
-                    var point = event.latlng;
+                    var clickedNode = nearestRoadNode(event.latlng);
 
-                    routePoints.push(point);
+                    if (routeNodeIndexes.length === 0) {
+                        routeNodeIndexes.push(clickedNode);
+                        routePoints.push(roadNodes[clickedNode]);
+                    } else {
+                        var lastNode = routeNodeIndexes[routeNodeIndexes.length - 1];
+                        var path = shortestPath(lastNode, clickedNode);
 
-                    if (routePoints.length === 1) {
-                        startMarker = L.marker(point)
-                            .addTo(map)
-                            .bindPopup("📍 Старт")
-                            .openPopup();
-                    } else if (finishMode) {
-                        finishMarker = L.marker(point)
-                            .addTo(map)
-                            .bindPopup("🏁 Финиш")
-                            .openPopup();
+                        for (var i = 1; i < path.length; i++) {
+                            routeNodeIndexes.push(path[i]);
+                            routePoints.push(roadNodes[path[i]]);
+                        }
+                    }
 
+                    redrawAllMarkers();
+                    redrawRoute();
+                    updateInfo();
+
+                    if (finishMode) {
                         routeFinished = true;
                         finishMode = false;
 
+                        var lastPoint = routePoints[routePoints.length - 1];
+
+                        finishMarker = L.marker(lastPoint).addTo(map).bindPopup("🏁 Финиш").openPopup();
+
                         document.getElementById("statusText").innerText =
-                            "Маршрут завершён. Длина и время рассчитаны.";
-                    } else {
-                        var marker = L.circleMarker(point, {
-                            radius: 6,
-                            color: "#dc2626",
-                            fillColor: "#dc2626",
-                            fillOpacity: 1
-                        }).addTo(map);
-
-                        routeMarkers.push(marker);
+                            "Маршрут завершён. Финиш поставлен на дороге.";
                     }
-
-                    redrawRoute();
-                    updateInfo();
                 });
 
-                // ---------------------------------------------------------
-                // Перерисовка линии маршрута
-                // ---------------------------------------------------------
                 function redrawRoute() {
                     if (routeLine !== null) {
                         map.removeLayer(routeLine);
@@ -1073,38 +1190,6 @@ elif page == "Создать маршрут":
                     }
                 }
 
-                // ---------------------------------------------------------
-                // Удалить последнюю точку
-                // ---------------------------------------------------------
-                function removeLastPoint() {
-                    if (routePoints.length === 0) {
-                        alert("Точек маршрута пока нет.");
-                        return;
-                    }
-
-                    if (routeFinished) {
-                        routeFinished = false;
-                        finishMode = false;
-
-                        if (finishMarker !== null) {
-                            map.removeLayer(finishMarker);
-                            finishMarker = null;
-                        }
-                    }
-
-                    routePoints.pop();
-
-                    redrawAllMarkers();
-                    redrawRoute();
-                    updateInfo();
-
-                    document.getElementById("statusText").innerText =
-                        "Последняя точка удалена. Можно продолжать маршрут.";
-                }
-
-                // ---------------------------------------------------------
-                // Полностью перерисовать маркеры
-                // ---------------------------------------------------------
                 function redrawAllMarkers() {
                     if (startMarker !== null) {
                         map.removeLayer(startMarker);
@@ -1126,12 +1211,10 @@ elif page == "Создать маршрут":
                         var point = routePoints[j];
 
                         if (j === 0) {
-                            startMarker = L.marker(point)
-                                .addTo(map)
-                                .bindPopup("📍 Старт");
+                            startMarker = L.marker(point).addTo(map).bindPopup("📍 Старт");
                         } else {
                             var marker = L.circleMarker(point, {
-                                radius: 6,
+                                radius: 5,
                                 color: "#dc2626",
                                 fillColor: "#dc2626",
                                 fillOpacity: 1
@@ -1142,10 +1225,30 @@ elif page == "Создать маршрут":
                     }
                 }
 
-                // ---------------------------------------------------------
-                // Очистить маршрут
-                // ---------------------------------------------------------
+                function removeLastPoint() {
+                    if (routeNodeIndexes.length === 0) {
+                        alert("Точек маршрута пока нет.");
+                        return;
+                    }
+
+                    if (routeFinished) {
+                        routeFinished = false;
+                        finishMode = false;
+                    }
+
+                    routeNodeIndexes.pop();
+                    routePoints.pop();
+
+                    redrawAllMarkers();
+                    redrawRoute();
+                    updateInfo();
+
+                    document.getElementById("statusText").innerText =
+                        "Последняя точка удалена. Можно продолжать маршрут.";
+                }
+
                 function clearRoute() {
+                    routeNodeIndexes = [];
                     routePoints = [];
 
                     if (routeLine !== null) {
@@ -1180,9 +1283,6 @@ elif page == "Создать маршрут":
                         "Режим: маршрут очищен. Нажмите «Начать маршрут».";
                 }
 
-                // ---------------------------------------------------------
-                // Расчёт длины маршрута
-                // ---------------------------------------------------------
                 function calculateDistance() {
                     var distanceMeters = 0;
 
@@ -1191,15 +1291,13 @@ elif page == "Создать маршрут":
                     }
 
                     for (var i = 0; i < routePoints.length - 1; i++) {
-                        distanceMeters += routePoints[i].distanceTo(routePoints[i + 1]);
+                        distanceMeters += L.latLng(routePoints[i][0], routePoints[i][1])
+                            .distanceTo(L.latLng(routePoints[i + 1][0], routePoints[i + 1][1]));
                     }
 
                     return distanceMeters / 1000;
                 }
 
-                // ---------------------------------------------------------
-                // Форматирование времени
-                // ---------------------------------------------------------
                 function formatTime(minutes) {
                     if (minutes <= 0) {
                         return "0 мин";
@@ -1215,9 +1313,6 @@ elif page == "Создать маршрут":
                     return mins + " мин";
                 }
 
-                // ---------------------------------------------------------
-                // Обновление длины, темпа и времени
-                // ---------------------------------------------------------
                 function updateInfo() {
                     routeDistance = calculateDistance();
 
@@ -1239,9 +1334,6 @@ elif page == "Создать маршрут":
                         routePoints.length;
                 }
 
-                // ---------------------------------------------------------
-                // Сохранить маршрут и перейти на стартовое окно
-                // ---------------------------------------------------------
                 function saveRoute() {
                     var name = document.getElementById("routeName").value;
                     var description = document.getElementById("routeDescription").value;
@@ -1257,15 +1349,6 @@ elif page == "Создать маршрут":
                     if (!routeFinished) {
                         alert("Сначала завершите маршрут или поставьте финиш.");
                         return;
-                    }
-
-                    var simplePoints = [];
-
-                    for (var i = 0; i < routePoints.length; i++) {
-                        simplePoints.push([
-                            routePoints[i].lat,
-                            routePoints[i].lng
-                        ]);
                     }
 
                     var overlay = document.getElementById("successOverlay");
@@ -1285,7 +1368,7 @@ elif page == "Создать маршрут":
                     params.set("distance", routeDistance.toFixed(2));
                     params.set("pace", pace);
                     params.set("time", time);
-                    params.set("points", JSON.stringify(simplePoints));
+                    params.set("points", JSON.stringify(routePoints));
 
                     setTimeout(function() {
                         window.parent.location.href =
@@ -1310,7 +1393,6 @@ elif page == "Комментарии":
 
     activity_id = get_query_value("activity_id", "activity_0")
 
-    # Получаем нужную тренировку
     if activity_id == "user_saved":
         activity = get_user_saved_activity()
     else:
@@ -1334,7 +1416,6 @@ elif page == "Комментарии":
     with st.container(border=True):
         st.markdown(f"## {activity['avatar']} {activity['user']}")
         st.caption(activity["date"])
-
         st.markdown(f"### {activity['title']}")
         st.write(activity["description"])
 
@@ -1359,15 +1440,8 @@ elif page == "Комментарии":
         st.info("Комментариев пока нет. Напишите первый комментарий.")
 
     for comment in comments:
-        st.markdown(
-            f"""
-            <div class="small-card">
-                <b>{comment['author']}</b><br>
-                {comment['text']}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        is_mine = comment["author"].strip().lower() in ["вы", "я", "me"]
+        show_comment_card(comment["author"], comment["text"], is_mine=is_mine)
 
     st.markdown("## Добавить комментарий")
 
@@ -1400,22 +1474,13 @@ elif page == "Найти компанию":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        distance_filter = st.selectbox(
-            "Дистанция",
-            ["Любая", "3 км", "5 км", "7 км", "10 км"]
-        )
+        distance_filter = st.selectbox("Дистанция", ["Любая", "3 км", "5 км", "7 км", "10 км"])
 
     with col2:
-        pace_filter = st.selectbox(
-            "Темп",
-            ["Любой", "Лёгкий", "Средний", "Быстрый"]
-        )
+        pace_filter = st.selectbox("Темп", ["Любой", "Лёгкий", "Средний", "Быстрый"])
 
     with col3:
-        district_filter = st.selectbox(
-            "Район",
-            ["Любой", "Центр", "Север", "Юг", "Запад"]
-        )
+        district_filter = st.selectbox("Район", ["Любой", "Центр", "Север", "Юг", "Запад"])
 
     st.markdown("## Доступные пробежки")
 
@@ -1495,9 +1560,7 @@ elif page == "Чат":
 
         if st.button("Отправить"):
             if new_message.strip() != "":
-                st.session_state.chat_messages[selected_user].append(
-                    "Вы: " + new_message
-                )
+                st.session_state.chat_messages[selected_user].append("Вы: " + new_message)
                 st.success("Сообщение отправлено!")
                 st.rerun()
             else:
@@ -1516,7 +1579,7 @@ elif page == "Профиль":
         with st.container(border=True):
             st.markdown("# 😎")
             st.markdown("## Алексей")
-            st.write("Люблю бегать вечером, открывать новые маршруты и тренироваться с друзьями.")
+            st.write("Люблю бегать вечером, открывать новые маршруты и тренироваться с друзьями в RUNCLUB.")
 
     with col2:
         st.markdown("## Любимые тренировки")
