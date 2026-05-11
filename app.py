@@ -14,7 +14,7 @@ st.set_page_config(
 
 
 # ---------------------------------------------------------
-# Общие стили приложения
+# Общие стили
 # ---------------------------------------------------------
 st.markdown("""
 <style>
@@ -62,6 +62,28 @@ st.markdown("""
         font-size: 14px;
         margin-top: 4px;
         font-weight: 700;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #dc2626, #7f1d1d);
+        color: white;
+        padding: 22px;
+        border-radius: 22px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 22px rgba(220, 38, 38, 0.2);
+    }
+
+    .profile-title {
+        color: white;
+        font-size: 36px;
+        font-weight: 900;
+        margin: 0;
+    }
+
+    .profile-subtitle {
+        color: #fee2e2;
+        font-size: 16px;
+        margin-top: 6px;
     }
 
     .status-done {
@@ -141,39 +163,96 @@ st.markdown("""
 # ---------------------------------------------------------
 # Демонстрационные данные
 # ---------------------------------------------------------
+people = {
+    "Даня": {
+        "avatar": "🧢",
+        "description": "Любит утренние пробежки, спокойный темп и городские маршруты.",
+        "kilometers": "356 км",
+        "runs_count": "74",
+        "avg_pace": "5:52 мин/км",
+        "gear": [
+            "Кроссовки: Adidas Duramo",
+            "Часы: Xiaomi Band",
+            "Наушники: JBL Sport"
+        ],
+        "last_runs": [
+            "Утренняя пробежка по улицам — 5.2 км",
+            "Лёгкий бег после школы — 3.1 км",
+            "Темповая тренировка — 4.4 км"
+        ]
+    },
+    "Аня": {
+        "avatar": "🎧",
+        "description": "Бегает вечером, любит короткие маршруты и тренировки с музыкой.",
+        "kilometers": "214 км",
+        "runs_count": "49",
+        "avg_pace": "6:18 мин/км",
+        "gear": [
+            "Кроссовки: Nike Revolution",
+            "Фитнес-браслет: Honor Band",
+            "Наушники: беспроводные"
+        ],
+        "last_runs": [
+            "Вечерний маршрут по району — 4.1 км",
+            "Пробежка в парке — 3.8 км",
+            "Лёгкая тренировка — 2.5 км"
+        ]
+    },
+    "Маша": {
+        "avatar": "🏃‍♀️",
+        "description": "Любит быстрые тренировки, интервалы и круговые маршруты.",
+        "kilometers": "421 км",
+        "runs_count": "91",
+        "avg_pace": "5:20 мин/км",
+        "gear": [
+            "Кроссовки: Asics Gel",
+            "Часы: Amazfit",
+            "Кепка для бега"
+        ],
+        "last_runs": [
+            "Круговая тренировка — 2.9 км",
+            "Интервалы на районе — 4 км",
+            "Быстрая пробежка — 3.2 км"
+        ]
+    },
+    "Игорь": {
+        "avatar": "⌚",
+        "description": "Чаще выбирает длинные городские маршруты и тренировки на выносливость.",
+        "kilometers": "612 км",
+        "runs_count": "118",
+        "avg_pace": "6:03 мин/км",
+        "gear": [
+            "Кроссовки: Puma Runner",
+            "Часы: Garmin",
+            "Пояс для телефона"
+        ],
+        "last_runs": [
+            "Длинная пробежка по кварталам — 5.6 км",
+            "Восстановительный бег — 3 км",
+            "Маршрут по улицам — 6.4 км"
+        ]
+    }
+}
 
-# ВАЖНО:
-# Ниже маршруты сделаны не длинными прямыми линиями.
-# В каждом маршруте много близких точек.
-# Точки идут по городским улицам в районе, где нет воды.
-# Маршруты специально сделаны "ломаными": движение идёт по дорогам,
-# а повороты происходят на перекрёстках.
+
 feed_activities = [
     {
         "user": "Даня",
         "avatar": "🧢",
         "date": "Сегодня, 08:20",
         "title": "Утренняя пробежка по улицам",
-        "description": "Маршрут проходит по городским улицам без перехода через воду. Повороты сделаны на перекрёстках.",
-        "distance": "3.2 км",
+        "description": "Спокойная тренировка по городским улицам. Ровный темп и хорошее настроение.",
+        "distance": "5.2 км",
         "pace": "5:48 мин/км",
-        "time": "19 мин",
+        "time": "30 мин",
         "status": "Завершено",
         "points": [
-            [56.03840, 92.90820],
-            [56.03855, 92.91010],
-            [56.03870, 92.91200],
-            [56.03885, 92.91390],
-            [56.03900, 92.91580],
-            [56.04020, 92.91560],
-            [56.04140, 92.91540],
-            [56.04260, 92.91520],
-            [56.04245, 92.91330],
-            [56.04230, 92.91140],
-            [56.04215, 92.90950],
-            [56.04100, 92.90970],
-            [56.03980, 92.90995],
-            [56.03855, 92.91010]
+            [56.0212, 92.8380],
+            [56.0198, 92.8465],
+            [56.0182, 92.8555],
+            [56.0168, 92.8640],
+            [56.0150, 92.8720],
+            [56.0134, 92.8810]
         ]
     },
     {
@@ -181,53 +260,36 @@ feed_activities = [
         "avatar": "🎧",
         "date": "Вчера, 19:10",
         "title": "Вечерний маршрут по району",
-        "description": "Спокойная пробежка по улицам. Трек идёт только по дороге и не режет карту напрямую.",
+        "description": "Лёгкая пробежка вечером. Хороший вариант для спокойной тренировки после школы.",
         "distance": "4.1 км",
         "pace": "6:20 мин/км",
         "time": "26 мин",
         "status": "Завершено",
         "points": [
-            [56.03480, 92.92200],
-            [56.03580, 92.92215],
-            [56.03680, 92.92230],
-            [56.03780, 92.92245],
-            [56.03880, 92.92260],
-            [56.03980, 92.92275],
-            [56.03995, 92.92470],
-            [56.04010, 92.92660],
-            [56.03895, 92.92685],
-            [56.03780, 92.92710],
-            [56.03665, 92.92735],
-            [56.03550, 92.92760],
-            [56.03535, 92.92570],
-            [56.03520, 92.92380],
-            [56.03480, 92.92200]
+            [56.0105, 92.8060],
+            [56.0120, 92.8140],
+            [56.0138, 92.8225],
+            [56.0150, 92.8310],
+            [56.0165, 92.8390]
         ]
     },
     {
         "user": "Маша",
         "avatar": "🏃‍♀️",
         "date": "Вчера, 17:45",
-        "title": "Круговая тренировка по улицам",
-        "description": "Круговой маршрут для тренировки скорости. Маршрут не пересекает воду и идёт по городской сетке улиц.",
+        "title": "Круговая тренировка",
+        "description": "Короткая тренировка на скорость. Удобный круговой маршрут.",
         "distance": "2.9 км",
         "pace": "5:10 мин/км",
         "time": "15 мин",
         "status": "Завершено",
         "points": [
-            [56.03080, 92.90620],
-            [56.03180, 92.90640],
-            [56.03280, 92.90660],
-            [56.03380, 92.90680],
-            [56.03480, 92.90700],
-            [56.03465, 92.90880],
-            [56.03450, 92.91060],
-            [56.03350, 92.91040],
-            [56.03250, 92.91020],
-            [56.03150, 92.91000],
-            [56.03050, 92.90980],
-            [56.03065, 92.90800],
-            [56.03080, 92.90620]
+            [56.0150, 92.8900],
+            [56.0155, 92.8950],
+            [56.0140, 92.9000],
+            [56.0120, 92.8985],
+            [56.0125, 92.8925],
+            [56.0150, 92.8900]
         ]
     },
     {
@@ -235,41 +297,64 @@ feed_activities = [
         "avatar": "⌚",
         "date": "2 дня назад",
         "title": "Длинная пробежка по кварталам",
-        "description": "Длинный маршрут по улицам. Линия идёт по дорогам и делает повороты только на перекрёстках.",
+        "description": "Длинная городская пробежка для выносливости.",
         "distance": "5.6 км",
         "pace": "6:05 мин/км",
         "time": "34 мин",
         "status": "Завершено",
         "points": [
-            [56.04500, 92.90700],
-            [56.04400, 92.90720],
-            [56.04300, 92.90740],
-            [56.04200, 92.90760],
-            [56.04100, 92.90780],
-            [56.04000, 92.90800],
-            [56.03900, 92.90820],
-            [56.03915, 92.91000],
-            [56.03930, 92.91180],
-            [56.03945, 92.91360],
-            [56.03960, 92.91540],
-            [56.04060, 92.91520],
-            [56.04160, 92.91500],
-            [56.04260, 92.91480],
-            [56.04360, 92.91460],
-            [56.04460, 92.91440],
-            [56.04475, 92.91260],
-            [56.04490, 92.91080],
-            [56.04500, 92.90700]
+            [56.0400, 92.9000],
+            [56.0355, 92.8910],
+            [56.0310, 92.8820],
+            [56.0265, 92.8730],
+            [56.0220, 92.8640],
+            [56.0180, 92.8550],
+            [56.0140, 92.8460]
         ]
     }
 ]
 
-runs = [
-    {"place": "Парк Победы", "district": "Центр", "distance": "5 км", "time": "18:30", "pace": "Средний", "members": 4},
-    {"place": "Набережная Енисея", "district": "Север", "distance": "3 км", "time": "17:00", "pace": "Лёгкий", "members": 2},
-    {"place": "Стадион школы №7", "district": "Юг", "distance": "10 км", "time": "19:15", "pace": "Быстрый", "members": 5},
-    {"place": "Лесная тропа", "district": "Запад", "distance": "7 км", "time": "08:30", "pace": "Средний", "members": 3}
+
+# Окно «Найти компанию»: единые маршруты с картой как на стартовом окне
+company_runs = [
+    {
+        "id": "run_0",
+        "title": "Утренняя пробежка по улицам",
+        "creator": "Даня",
+        "participants": ["Даня", "Аня", "Маша"],
+        "friend": True,
+        "distance": "5.2 км",
+        "pace": "5:50 мин/км",
+        "time": "30 мин",
+        "description": "Городской маршрут для спокойной утренней пробежки.",
+        "points": feed_activities[0]["points"]
+    },
+    {
+        "id": "run_1",
+        "title": "Вечерний маршрут по району",
+        "creator": "Аня",
+        "participants": ["Аня", "Игорь"],
+        "friend": False,
+        "distance": "4.1 км",
+        "pace": "6:20 мин/км",
+        "time": "26 мин",
+        "description": "Лёгкая пробежка вечером. Подходит для новичков.",
+        "points": feed_activities[1]["points"]
+    },
+    {
+        "id": "run_2",
+        "title": "Круговая тренировка",
+        "creator": "Маша",
+        "participants": ["Маша", "Даня", "Игорь"],
+        "friend": True,
+        "distance": "2.9 км",
+        "pace": "5:10 мин/км",
+        "time": "15 мин",
+        "description": "Короткая тренировка на скорость и выносливость.",
+        "points": feed_activities[2]["points"]
+    }
 ]
+
 
 chats = {
     "Аня": ["Привет! Побежим сегодня вечером?", "Я могу после 18:00."],
@@ -278,7 +363,7 @@ chats = {
 }
 
 my_routes = [
-    "Улицы района — круговой маршрут, 3 км",
+    "Городской маршрут — 5 км",
     "Школа — Стадион, 3 км",
     "Квартальный круг, 4 км"
 ]
@@ -291,7 +376,7 @@ my_events = [
 
 
 # ---------------------------------------------------------
-# Лайки и комментарии
+# Session State
 # ---------------------------------------------------------
 if "activity_likes" not in st.session_state:
     st.session_state.activity_likes = {
@@ -305,48 +390,18 @@ if "activity_likes" not in st.session_state:
 if "activity_comments" not in st.session_state:
     st.session_state.activity_comments = {
         "activity_0": [
-            {
-                "author": "Аня",
-                "text": "Вот теперь маршрут выглядит нормально: он идёт по улицам, а не режет карту напрямую. Такой трек удобно повторить, потому что все повороты понятные."
-            },
-            {
-                "author": "Маша",
-                "text": "Мне нравится, что маршрут не пересекает воду и проходит по городской сетке. Для утренней пробежки самое то: не слишком длинный и без опасных переходов."
-            },
-            {
-                "author": "Игорь",
-                "text": "Хороший маршрут для ровного темпа. Видно, что точки стоят последовательно, а линия идёт по дорогам с поворотами, а не просто соединяет старт и финиш."
-            }
+            {"author": "Аня", "text": "Очень классный маршрут! Я бы тоже хотела пробежать его утром, когда машин меньше и улицы свободнее."},
+            {"author": "Маша", "text": "Темп хороший, маршрут выглядит понятным. Мне нравится, что тренировка не слишком длинная, но полезная."},
         ],
         "activity_1": [
-            {
-                "author": "Даня",
-                "text": "Вечерний маршрут выглядит спокойным. Мне нравится, что он проходит по улицам района и не уходит через воду или странные места."
-            },
-            {
-                "author": "Катя",
-                "text": "Я бы присоединилась к такой пробежке. Дистанция нормальная, темп комфортный, а маршрут визуально понятный."
-            }
+            {"author": "Даня", "text": "Вечером такой маршрут должен быть очень приятным. Можно спокойно бежать и не торопиться."},
+            {"author": "Катя", "text": "Я бы присоединилась к такой пробежке. Дистанция комфортная, а темп подходит почти всем."}
         ],
         "activity_2": [
-            {
-                "author": "Алексей",
-                "text": "Круговой маршрут удобен тем, что можно закончить почти там же, где начал. Для школьного проекта это выглядит аккуратно и понятно."
-            },
-            {
-                "author": "Даня",
-                "text": "Темп сильный, но маршрут короткий, поэтому тренировка выглядит реалистично. Хорошо, что трек не пересекает реку."
-            }
+            {"author": "Алексей", "text": "Круговой маршрут удобен тем, что можно закончить почти там же, где начал. Хорошая тренировка."}
         ],
         "activity_3": [
-            {
-                "author": "Маша",
-                "text": "Длинная пробежка выглядит серьёзно. Понравилось, что маршрут идёт по кварталам и делает повороты, а не пересекает карту одной прямой линией."
-            },
-            {
-                "author": "Аня",
-                "text": "Для выходного дня такой маршрут был бы отличным. Можно бежать спокойно, смотреть город и не думать, куда поворачивать."
-            }
+            {"author": "Маша", "text": "Длинная пробежка выглядит серьёзно. Для выходного дня прям отличный вариант."}
         ],
         "user_saved": []
     }
@@ -354,14 +409,33 @@ if "activity_comments" not in st.session_state:
 if "liked_by_me" not in st.session_state:
     st.session_state.liked_by_me = {}
 
+if "company_members" not in st.session_state:
+    st.session_state.company_members = {
+        run["id"]: len(run["participants"]) for run in company_runs
+    }
+
+if "joined_runs" not in st.session_state:
+    st.session_state.joined_runs = {}
+
+if "profile_avatar" not in st.session_state:
+    st.session_state.profile_avatar = None
+
+if "my_description" not in st.session_state:
+    st.session_state.my_description = "Люблю бегать вечером, открывать новые маршруты и тренироваться с друзьями в RUNCLUB."
+
+if "edit_description" not in st.session_state:
+    st.session_state.edit_description = False
+
 
 # ---------------------------------------------------------
 # Вспомогательные функции
 # ---------------------------------------------------------
 def get_query_value(name, default=""):
     value = st.query_params.get(name, default)
+
     if isinstance(value, list):
         return value[0] if len(value) > 0 else default
+
     return value
 
 
@@ -370,10 +444,12 @@ def get_status_class(status):
         return "status-planned"
     if status in ["завершено", "Завершено"]:
         return "status-done"
+
     return "status-cancelled"
 
 
-def show_activity_map(points, map_key):
+def show_activity_map(points, map_key, height=280):
+    """Показывает карту с маршрутом."""
     points_json = json.dumps(points)
 
     components.html(
@@ -390,7 +466,7 @@ def show_activity_map(points, map_key):
                 }}
 
                 #map_{map_key} {{
-                    height: 280px;
+                    height: {height}px;
                     width: 100%;
                     border-radius: 16px;
                     border: 1px solid #d1d5db;
@@ -429,13 +505,13 @@ def show_activity_map(points, map_key):
                         padding: [35, 35]
                     }});
                 }} else {{
-                    map.setView([56.03840, 92.90820], 14);
+                    map.setView([56.010563, 92.852572], 12);
                 }}
             </script>
         </body>
         </html>
         """,
-        height=300
+        height=height + 20
     )
 
 
@@ -467,7 +543,16 @@ def get_user_saved_activity():
     }
 
 
+def open_profile_button(name, key):
+    """Кнопка имени, которая открывает профиль участника."""
+    if st.button(name, key=key):
+        st.query_params["page"] = "Профиль"
+        st.query_params["profile_user"] = name
+        st.rerun()
+
+
 def show_activity_card(activity, activity_id, is_user=False):
+    """Карточка тренировки на стартовом экране."""
     with st.container(border=True):
         col_avatar, col_info = st.columns([1, 8])
 
@@ -476,12 +561,10 @@ def show_activity_card(activity, activity_id, is_user=False):
 
         with col_info:
             if is_user:
-                st.markdown(
-                    f"### {activity['user']} <span class='red-text'>— ваш маршрут</span>",
-                    unsafe_allow_html=True
-                )
+                st.markdown("### Вы <span class='red-text'>— ваш маршрут</span>", unsafe_allow_html=True)
             else:
-                st.markdown(f"### {activity['user']}")
+                open_profile_button(activity["user"], f"profile_from_feed_{activity_id}")
+
             st.caption(activity["date"])
 
         st.markdown(f"## {activity['title']}")
@@ -1276,6 +1359,7 @@ elif page == "Создать маршрут":
         height=820
     )
 
+
 # ---------------------------------------------------------
 # Страница комментариев
 # ---------------------------------------------------------
@@ -1362,43 +1446,76 @@ elif page == "Найти компанию":
 
     st.markdown("## Фильтры поиска")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
     with col1:
-        distance_filter = st.selectbox("Дистанция", ["Любая", "3 км", "5 км", "7 км", "10 км"])
+        distance_filter = st.selectbox(
+            "Дистанция",
+            ["Любая", "2.9 км", "4.1 км", "5.2 км"]
+        )
 
     with col2:
-        pace_filter = st.selectbox("Темп", ["Любой", "Лёгкий", "Средний", "Быстрый"])
-
-    with col3:
-        district_filter = st.selectbox("Район", ["Любой", "Центр", "Север", "Юг", "Запад"])
+        friend_filter = st.selectbox(
+            "Друзья",
+            ["Все", "Только друзья", "Не в друзьях"]
+        )
 
     st.markdown("## Доступные пробежки")
 
-    filtered_runs = []
-
-    for run in runs:
+    for index, run in enumerate(company_runs):
         distance_ok = distance_filter == "Любая" or run["distance"] == distance_filter
-        pace_ok = pace_filter == "Любой" or run["pace"] == pace_filter
-        district_ok = district_filter == "Любой" or run["district"] == district_filter
 
-        if distance_ok and pace_ok and district_ok:
-            filtered_runs.append(run)
+        if friend_filter == "Только друзья":
+            friend_ok = run["friend"]
+        elif friend_filter == "Не в друзьях":
+            friend_ok = not run["friend"]
+        else:
+            friend_ok = True
 
-    if len(filtered_runs) == 0:
-        st.warning("Подходящих пробежек пока нет. Попробуйте изменить фильтры.")
+        if not distance_ok or not friend_ok:
+            continue
 
-    for index, run in enumerate(filtered_runs):
         with st.container(border=True):
-            st.markdown(f"### 📍 {run['place']}")
-            st.write(f"**Район:** {run['district']}")
-            st.write(f"**Дистанция:** {run['distance']}")
-            st.write(f"**Время:** {run['time']}")
-            st.write(f"**Темп:** {run['pace']}")
-            st.write(f"**Участников:** {run['members']}")
+            st.markdown(f"## {run['title']}")
+            st.write(run["description"])
 
-            if st.button("Присоединиться", key=f"join_{index}"):
-                st.success(f"Вы присоединились к пробежке: {run['place']}!")
+            col_map, col_info = st.columns([2, 1])
+
+            with col_map:
+                show_activity_map(run["points"], f"company_route_{index}", height=260)
+
+            with col_info:
+                st.markdown("### Информация")
+                st.write(f"**Создатель:** {run['creator']}")
+                st.write(f"**В друзьях:** {'Да' if run['friend'] else 'Нет'}")
+                st.write(f"**Дистанция:** {run['distance']}")
+                st.write(f"**Примерное время:** {run['time']}")
+                st.write(f"**Темп:** {run['pace']}")
+                st.write(f"**Участников:** {st.session_state.company_members[run['id']]}")
+
+                if st.button("Присоединиться", key=f"join_{run['id']}"):
+                    if not st.session_state.joined_runs.get(run["id"], False):
+                        st.session_state.company_members[run["id"]] += 1
+                        st.session_state.joined_runs[run["id"]] = True
+                        st.success("Вы присоединились к пробежке!")
+                        st.rerun()
+                    else:
+                        st.info("Вы уже присоединились к этой пробежке.")
+
+            st.markdown("### Кто бежит")
+
+            participant_cols = st.columns(len(run["participants"]))
+
+            for participant_index, participant_name in enumerate(run["participants"]):
+                with participant_cols[participant_index]:
+                    avatar = people[participant_name]["avatar"]
+                    if st.button(
+                        f"{avatar} {participant_name}",
+                        key=f"participant_{run['id']}_{participant_name}"
+                    ):
+                        st.query_params["page"] = "Профиль"
+                        st.query_params["profile_user"] = participant_name
+                        st.rerun()
 
 
 # ---------------------------------------------------------
@@ -1462,17 +1579,75 @@ elif page == "Чат":
 # 5. Профиль
 # ---------------------------------------------------------
 elif page == "Профиль":
-    st.markdown('<div class="big-title">Профиль 👤</div>', unsafe_allow_html=True)
+    profile_user = get_query_value("profile_user", "Вы")
 
-    col1, col2 = st.columns([1, 2])
+    st.markdown(
+        """
+        <div class="profile-header">
+            <div class="profile-title">Профиль</div>
+            <div class="profile-subtitle">Информация об участнике RUNCLUB</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    with col1:
-        with st.container(border=True):
-            st.markdown("# 😎")
+    if profile_user == "Вы":
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            uploaded_avatar = st.file_uploader(
+                "Загрузите свою аватарку",
+                type=["png", "jpg", "jpeg"]
+            )
+
+            if uploaded_avatar is not None:
+                st.session_state.profile_avatar = uploaded_avatar
+
+            if st.session_state.profile_avatar is not None:
+                st.image(st.session_state.profile_avatar, width=180)
+            else:
+                st.markdown("# 😎")
+
+        with col2:
             st.markdown("## Алексей")
-            st.write("Люблю бегать вечером, открывать новые маршруты и тренироваться с друзьями в RUNCLUB.")
 
-    with col2:
+            if st.session_state.edit_description:
+                new_description = st.text_area(
+                    "Описание профиля",
+                    st.session_state.my_description
+                )
+
+                save_col, cancel_col = st.columns(2)
+
+                with save_col:
+                    if st.button("Сохранить описание"):
+                        st.session_state.my_description = new_description
+                        st.session_state.edit_description = False
+                        st.success("Описание сохранено!")
+                        st.rerun()
+
+                with cancel_col:
+                    if st.button("Отмена"):
+                        st.session_state.edit_description = False
+                        st.rerun()
+            else:
+                st.write(st.session_state.my_description)
+
+                if st.button("Редактировать описание"):
+                    st.session_state.edit_description = True
+                    st.rerun()
+
+            stat1, stat2, stat3 = st.columns(3)
+
+            with stat1:
+                st.metric("Километров пробежал", "128 км")
+
+            with stat2:
+                st.metric("Количество пробежек", "32")
+
+            with stat3:
+                st.metric("Средний темп", "6:10 мин/км")
+
         st.markdown("## Любимые тренировки")
         st.markdown("""
         <span class="badge">Лёгкий бег</span>
@@ -1481,52 +1656,65 @@ elif page == "Профиль":
         <span class="badge">Забеги 5 км</span>
         """, unsafe_allow_html=True)
 
-        st.markdown("## Статистика")
+        st.markdown("## Мои маршруты")
 
-        stat1, stat2, stat3 = st.columns(3)
+        for route in my_routes:
+            st.markdown(f"<div class='small-card'>🗺️ {route}</div>", unsafe_allow_html=True)
 
-        with stat1:
-            st.metric("Километров пробежал", "128 км")
+        col3, col4 = st.columns(2)
 
-        with stat2:
-            st.metric("Количество пробежек", "32")
+        with col3:
+            st.markdown("## Награды")
+            with st.container(border=True):
+                st.write("🏅 Первая пробежка")
+                st.write("🥈 10 тренировок")
+                st.write("🏆 100 километров")
+                st.write("🔥 Неделя активности")
 
-        with stat3:
-            st.metric("Средний темп", "6:10 мин/км")
+        with col4:
+            st.markdown("## Снаряжение")
+            with st.container(border=True):
+                st.write("👟 Кроссовки: Nike Revolution")
+                st.write("⌚ Часы: фитнес-браслет")
+                st.write("🎧 Наушники: спортивные")
+                st.write("🧢 Аксессуар: кепка для бега")
 
-    st.markdown("## Мои маршруты")
+    else:
+        person = people.get(profile_user, people["Даня"])
 
-    for route in my_routes:
-        st.markdown(
-            f"""
-            <div class="small-card">
-                🗺️ {route}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        col1, col2 = st.columns([1, 2])
 
-    col3, col4 = st.columns(2)
+        with col1:
+            st.markdown(f"# {person['avatar']}")
 
-    with col3:
-        st.markdown("## Награды")
-        with st.container(border=True):
-            st.write("🏅 Первая пробежка")
-            st.write("🥈 10 тренировок")
-            st.write("🏆 100 километров")
-            st.write("🔥 Неделя активности")
+        with col2:
+            st.markdown(f"## {profile_user}")
+            st.write(person["description"])
 
-    with col4:
+            s1, s2, s3 = st.columns(3)
+
+            with s1:
+                st.metric("Километров пробежал", person["kilometers"])
+
+            with s2:
+                st.metric("Количество пробежек", person["runs_count"])
+
+            with s3:
+                st.metric("Средний темп", person["avg_pace"])
+
+        st.markdown("## Последние тренировки")
+
+        for item in person["last_runs"]:
+            st.markdown(f"<div class='small-card'>🏃 {item}</div>", unsafe_allow_html=True)
+
         st.markdown("## Снаряжение")
-        with st.container(border=True):
-            st.write("👟 Кроссовки: Nike Revolution")
-            st.write("⌚ Часы: фитнес-браслет")
-            st.write("🎧 Наушники: спортивные")
-            st.write("🧢 Аксессуар: кепка для бега")
+
+        for item in person["gear"]:
+            st.markdown(f"<div class='small-card'>🎒 {item}</div>", unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------
-# 6. Мои пробежки / Мои события
+# 6. Мои пробежки
 # ---------------------------------------------------------
 elif page == "Мои пробежки":
     st.markdown('<div class="big-title">Мои пробежки 📅</div>', unsafe_allow_html=True)
