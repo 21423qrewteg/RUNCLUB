@@ -633,8 +633,8 @@ if page == "Стартовое окно":
 elif page == "Создать маршрут":
     st.markdown('<div class="big-title">Создать маршрут 🗺️</div>', unsafe_allow_html=True)
     st.write(
-        "Кликайте по карте: приложение будет переносить ваши точки на ближайшие разрешённые улицы. "
-        "Маршрут строится по дорожной сетке, а не прямой линией через карту."
+        "Поставьте точки маршрута в любом месте на карте. "
+        "Маршрут не обязан быть замкнутым: можно поставить старт, промежуточные точки и финиш."
     )
 
     components.html(
@@ -691,10 +691,6 @@ elif page == "Создать маршрут":
                 .main-button {
                     background: #dc2626;
                     color: white;
-                }
-
-                .main-button:hover {
-                    background: #b91c1c;
                 }
 
                 .blue-button {
@@ -866,9 +862,10 @@ elif page == "Создать маршрут":
             <div class="app-box">
                 <div class="hint">
                     1. Нажмите «Начать маршрут».<br>
-                    2. Кликайте рядом с улицами — точка сама встанет на ближайший разрешённый дорожный узел.<br>
-                    3. Маршрут строится по дорожной сетке, а не прямой линией.<br>
-                    4. Дата доступна только от сегодня до 5 дней вперёд.
+                    2. Кликайте в любом месте на карте, чтобы ставить точки маршрута.<br>
+                    3. Маршрут может быть обычной линией: он не обязан замыкаться в фигуру.<br>
+                    4. Нажмите «Поставить финиш», затем кликните по карте, чтобы поставить последнюю точку.<br>
+                    5. Дата доступна только от сегодня до 5 дней вперёд.
                 </div>
 
                 <div class="status" id="statusText">
@@ -893,7 +890,7 @@ elif page == "Создать маршрут":
 
                     <div class="control-card">
                         <label>Описание</label>
-                        <input id="routeDescription" type="text" value="Маршрут построен по улицам в RUNCLUB.">
+                        <input id="routeDescription" type="text" value="Маршрут создан в RUNCLUB.">
                     </div>
 
                     <div class="control-card">
@@ -934,16 +931,13 @@ elif page == "Создать маршрут":
                 <div class="success-modal">
                     <div class="check">✓</div>
                     <h2>Ваш маршрут сохранён!</h2>
-                    <p>
-                        Сейчас вы будете перенаправлены на стартовое окно RUNCLUB.
-                    </p>
+                    <p>Сейчас вы будете перенаправлены на стартовое окно RUNCLUB.</p>
                 </div>
             </div>
 
             <script>
                 function setupDateLimit() {
                     var dateInput = document.getElementById("runDate");
-
                     var today = new Date();
                     var maxDate = new Date();
 
@@ -959,148 +953,13 @@ elif page == "Создать маршрут":
 
                 setupDateLimit();
 
-                var map = L.map('map').setView([56.03840, 92.90820], 15);
+                var map = L.map('map').setView([56.010563, 92.852572], 12);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
                 }).addTo(map);
 
-                /*
-                    Упрощённая дорожная сетка.
-                    Это не вода и не рельсы. Это демонстрационные разрешённые улицы.
-                    Пользователь кликает рядом с улицей, а точка ставится на ближайший узел.
-                */
-                var roadNodes = [
-                    [56.03840, 92.90820],
-                    [56.03855, 92.91010],
-                    [56.03870, 92.91200],
-                    [56.03885, 92.91390],
-                    [56.03900, 92.91580],
-
-                    [56.04020, 92.90800],
-                    [56.04035, 92.90990],
-                    [56.04050, 92.91180],
-                    [56.04065, 92.91370],
-                    [56.04080, 92.91560],
-
-                    [56.04200, 92.90780],
-                    [56.04215, 92.90970],
-                    [56.04230, 92.91160],
-                    [56.04245, 92.91350],
-                    [56.04260, 92.91540],
-
-                    [56.04380, 92.90760],
-                    [56.04395, 92.90950],
-                    [56.04410, 92.91140],
-                    [56.04425, 92.91330],
-                    [56.04440, 92.91520]
-                ];
-
-                var roadEdges = [
-                    [0,1], [1,2], [2,3], [3,4],
-                    [5,6], [6,7], [7,8], [8,9],
-                    [10,11], [11,12], [12,13], [13,14],
-                    [15,16], [16,17], [17,18], [18,19],
-
-                    [0,5], [5,10], [10,15],
-                    [1,6], [6,11], [11,16],
-                    [2,7], [7,12], [12,17],
-                    [3,8], [8,13], [13,18],
-                    [4,9], [9,14], [14,19]
-                ];
-
-                var graph = {};
-
-                for (var i = 0; i < roadNodes.length; i++) {
-                    graph[i] = [];
-                }
-
-                for (var e = 0; e < roadEdges.length; e++) {
-                    var a = roadEdges[e][0];
-                    var b = roadEdges[e][1];
-
-                    graph[a].push(b);
-                    graph[b].push(a);
-                }
-
-                for (var r = 0; r < roadEdges.length; r++) {
-                    var n1 = roadNodes[roadEdges[r][0]];
-                    var n2 = roadNodes[roadEdges[r][1]];
-
-                    L.polyline([n1, n2], {
-                        color: "#9ca3af",
-                        weight: 4,
-                        opacity: 0.55,
-                        dashArray: "6, 7"
-                    }).addTo(map);
-                }
-
-                function nearestRoadNode(latlng) {
-                    var bestIndex = 0;
-                    var bestDistance = Infinity;
-
-                    for (var i = 0; i < roadNodes.length; i++) {
-                        var node = L.latLng(roadNodes[i][0], roadNodes[i][1]);
-                        var distance = latlng.distanceTo(node);
-
-                        if (distance < bestDistance) {
-                            bestDistance = distance;
-                            bestIndex = i;
-                        }
-                    }
-
-                    return bestIndex;
-                }
-
-                function shortestPath(start, end) {
-                    var queue = [start];
-                    var visited = {};
-                    var previous = {};
-
-                    visited[start] = true;
-
-                    while (queue.length > 0) {
-                        var current = queue.shift();
-
-                        if (current === end) {
-                            break;
-                        }
-
-                        var neighbors = graph[current];
-
-                        for (var i = 0; i < neighbors.length; i++) {
-                            var next = neighbors[i];
-
-                            if (!visited[next]) {
-                                visited[next] = true;
-                                previous[next] = current;
-                                queue.push(next);
-                            }
-                        }
-                    }
-
-                    var path = [];
-                    var step = end;
-
-                    if (!visited[end]) {
-                        return [start, end];
-                    }
-
-                    while (step !== undefined) {
-                        path.unshift(step);
-
-                        if (step === start) {
-                            break;
-                        }
-
-                        step = previous[step];
-                    }
-
-                    return path;
-                }
-
-                var routeNodeIndexes = [];
                 var routePoints = [];
                 var routeMarkers = [];
                 var routeLine = null;
@@ -1120,7 +979,7 @@ elif page == "Создать маршрут":
                     routeFinished = false;
 
                     document.getElementById("statusText").innerText =
-                        "Режим: кликайте около улиц. Точки будут вставать на ближайшие дорожные узлы.";
+                        "Режим: ставьте точки маршрута кликами по карте.";
                 }
 
                 function enableFinishMode() {
@@ -1129,7 +988,7 @@ elif page == "Создать маршрут":
                         return;
                     }
 
-                    if (routeNodeIndexes.length < 1) {
+                    if (routePoints.length < 1) {
                         alert("Сначала поставьте хотя бы одну точку старта.");
                         return;
                     }
@@ -1137,7 +996,7 @@ elif page == "Создать маршрут":
                     finishMode = true;
 
                     document.getElementById("statusText").innerText =
-                        "Режим: кликните около улицы, чтобы поставить финиш.";
+                        "Режим: кликните по карте, чтобы поставить финиш.";
                 }
 
                 function finishRoute() {
@@ -1158,7 +1017,7 @@ elif page == "Создать маршрут":
                     finishMarker = L.marker(lastPoint).addTo(map).bindPopup("🏁 Финиш");
 
                     document.getElementById("statusText").innerText =
-                        "Маршрут завершён. Он построен по дорожной сетке.";
+                        "Маршрут завершён. Длина и время рассчитаны.";
                 }
 
                 map.on('click', function(event) {
@@ -1171,36 +1030,39 @@ elif page == "Создать маршрут":
                         return;
                     }
 
-                    var clickedNode = nearestRoadNode(event.latlng);
+                    var point = event.latlng;
 
-                    if (routeNodeIndexes.length === 0) {
-                        routeNodeIndexes.push(clickedNode);
-                        routePoints.push(roadNodes[clickedNode]);
-                    } else {
-                        var lastNode = routeNodeIndexes[routeNodeIndexes.length - 1];
-                        var path = shortestPath(lastNode, clickedNode);
+                    routePoints.push([point.lat, point.lng]);
 
-                        for (var i = 1; i < path.length; i++) {
-                            routeNodeIndexes.push(path[i]);
-                            routePoints.push(roadNodes[path[i]]);
-                        }
-                    }
+                    if (routePoints.length === 1) {
+                        startMarker = L.marker(point)
+                            .addTo(map)
+                            .bindPopup("📍 Старт")
+                            .openPopup();
+                    } else if (finishMode) {
+                        finishMarker = L.marker(point)
+                            .addTo(map)
+                            .bindPopup("🏁 Финиш")
+                            .openPopup();
 
-                    redrawAllMarkers();
-                    redrawRoute();
-                    updateInfo();
-
-                    if (finishMode) {
                         routeFinished = true;
                         finishMode = false;
 
-                        var lastPoint = routePoints[routePoints.length - 1];
-
-                        finishMarker = L.marker(lastPoint).addTo(map).bindPopup("🏁 Финиш").openPopup();
-
                         document.getElementById("statusText").innerText =
-                            "Маршрут завершён. Финиш поставлен на дороге.";
+                            "Маршрут завершён. Длина и время рассчитаны.";
+                    } else {
+                        var marker = L.circleMarker(point, {
+                            radius: 6,
+                            color: "#dc2626",
+                            fillColor: "#dc2626",
+                            fillOpacity: 1
+                        }).addTo(map);
+
+                        routeMarkers.push(marker);
                     }
+
+                    redrawRoute();
+                    updateInfo();
                 });
 
                 function redrawRoute() {
@@ -1215,6 +1077,32 @@ elif page == "Создать маршрут":
                             opacity: 0.95
                         }).addTo(map);
                     }
+                }
+
+                function removeLastPoint() {
+                    if (routePoints.length === 0) {
+                        alert("Точек маршрута пока нет.");
+                        return;
+                    }
+
+                    if (routeFinished) {
+                        routeFinished = false;
+                        finishMode = false;
+
+                        if (finishMarker !== null) {
+                            map.removeLayer(finishMarker);
+                            finishMarker = null;
+                        }
+                    }
+
+                    routePoints.pop();
+
+                    redrawAllMarkers();
+                    redrawRoute();
+                    updateInfo();
+
+                    document.getElementById("statusText").innerText =
+                        "Последняя точка удалена. Можно продолжать маршрут.";
                 }
 
                 function redrawAllMarkers() {
@@ -1241,7 +1129,7 @@ elif page == "Создать маршрут":
                             startMarker = L.marker(point).addTo(map).bindPopup("📍 Старт");
                         } else {
                             var marker = L.circleMarker(point, {
-                                radius: 5,
+                                radius: 6,
                                 color: "#dc2626",
                                 fillColor: "#dc2626",
                                 fillOpacity: 1
@@ -1252,30 +1140,7 @@ elif page == "Создать маршрут":
                     }
                 }
 
-                function removeLastPoint() {
-                    if (routeNodeIndexes.length === 0) {
-                        alert("Точек маршрута пока нет.");
-                        return;
-                    }
-
-                    if (routeFinished) {
-                        routeFinished = false;
-                        finishMode = false;
-                    }
-
-                    routeNodeIndexes.pop();
-                    routePoints.pop();
-
-                    redrawAllMarkers();
-                    redrawRoute();
-                    updateInfo();
-
-                    document.getElementById("statusText").innerText =
-                        "Последняя точка удалена. Можно продолжать маршрут.";
-                }
-
                 function clearRoute() {
-                    routeNodeIndexes = [];
                     routePoints = [];
 
                     if (routeLine !== null) {
@@ -1410,7 +1275,6 @@ elif page == "Создать маршрут":
         """,
         height=820
     )
-
 
 # ---------------------------------------------------------
 # Страница комментариев
